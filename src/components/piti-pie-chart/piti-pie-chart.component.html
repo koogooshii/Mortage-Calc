@@ -1,0 +1,43 @@
+
+<div class="bg-gray-900/30 p-4 rounded-lg">
+  <h4 class="font-semibold mb-3 text-gray-200 text-center">Monthly Payment Breakdown</h4>
+  
+  <div class="relative h-80">
+    <canvas #pitiPieChart></canvas>
+  </div>
+
+  <div class="text-center text-sm mt-4 pt-4 space-y-2 border-t border-gray-700/50">
+      <div class="flex justify-between items-center max-w-xs mx-auto">
+          <span class="font-semibold text-gray-300">Principal (1st pmt):</span>
+          <span class="font-mono text-white">{{ firstPaymentPrincipal() | currency }}</span>
+      </div>
+      <div class="flex justify-between items-center max-w-xs mx-auto">
+          <span class="font-semibold text-gray-300">Interest (1st pmt):</span>
+          <span class="font-mono text-white">{{ firstPaymentInterest() | currency }}</span>
+      </div>
+      @if(monthlyTax() > 0) {
+        <div class="flex justify-between items-center max-w-xs mx-auto">
+            <span class="font-semibold text-gray-300">Property Tax:</span>
+            <span class="font-mono text-white">{{ monthlyTax() | currency }} / mo</span>
+        </div>
+      }
+      @if(monthlyInsurance() > 0) {
+        <div class="flex justify-between items-center max-w-xs mx-auto">
+            <span class="font-semibold text-gray-300">Home Insurance:</span>
+            <span class="font-mono text-white">{{ monthlyInsurance() | currency }} / mo</span>
+        </div>
+      }
+      @if(monthlyPmi() > 0) {
+        <div class="flex justify-between items-center max-w-xs mx-auto">
+            <span class="font-semibold text-gray-300">PMI:</span>
+            <span class="font-mono text-white">{{ monthlyPmi() | currency }} / mo</span>
+        </div>
+      }
+      @if(extraMonthlyPayment() > 0) {
+        <div class="flex justify-between items-center max-w-xs mx-auto">
+            <span class="font-semibold text-green-400">Extra Payment:</span>
+            <span class="font-mono text-green-400">{{ extraMonthlyPayment() | currency }} / mo</span>
+        </div>
+      }
+  </div>
+</div>

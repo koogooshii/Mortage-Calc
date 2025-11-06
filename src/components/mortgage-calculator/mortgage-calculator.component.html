@@ -1,0 +1,503 @@
+<div class="space-y-8">
+  @if (!hideHeader()) {
+    <!-- Loan Summary Section -->
+    @if (summary(); as s) {
+      <section>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-gray-200">Loan Summary</h3>
+          <div class="flex items-center gap-2">
+            <button (click)="exportAsCsv()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0 -16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
+              </svg>
+              Export CSV
+            </button>
+            <button (click)="saveAsPdf()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0 -16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
+              </svg>
+              Save as PDF
+            </button>
+          </div>
+        </div>
+        <div class="bg-gray-900/50 rounded-lg p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <!-- Column 1: Core Metrics -->
+            <div class="space-y-4">
+              <div>
+                <p class="text-sm text-gray-400">Total {{ paymentFrequencyLabel() }} Payment</p>
+                <p class="font-bold text-2xl" [class]="colorClasses().text">{{ s.totalPeriodicPITI | currency:'USD':'symbol':'1.2-2' }}</p>
+                @if(s.totalTaxesAndInsurance > 0) {
+                  <p class="text-xs text-gray-500">
+                    P&I: {{ s.periodicPayment | currency }} | Taxes/Ins: {{ s.totalPeriodicPITI - s.periodicPayment | currency }}
+                  </p>
+                } @else {
+                  <p class="text-xs text-gray-500">Principal & Interest</p>
+                }
+              </div>
+
+              @if(s.balanceAtEndOfTerm > 0) {
+                <div>
+                  <p class="text-sm text-gray-400">Balance at End of Term</p>
+                  <p class="font-bold text-xl">{{ s.balanceAtEndOfTerm | currency:'USD':'symbol':'1.0-0' }}</p>
+                </div>
+              }
+
+              <div>
+                <p class="text-sm text-gray-400">Projected Payoff Date</p>
+                <p class="font-bold text-xl">{{ s.payoffDate | date:'MMM yyyy' }}</p>
+                @if(s.originalPayoffDate && s.payoffDate?.getTime() !== s.originalPayoffDate?.getTime()) {
+                  <p class="text-xs text-gray-500">Originally {{ s.originalPayoffDate | date:'MMM yyyy' }}</p>
+                }
+              </div>
+            </div>
+            
+            <!-- Column 2: Cost Breakdown -->
+            <div>
+              <h4 class="font-semibold text-center mb-3 text-gray-300">Cost Breakdown</h4>
+              <div class="text-sm space-y-2">
+                <!-- Headers -->
+                <div class="grid grid-cols-3 gap-2 font-semibold">
+                  <span class="text-gray-400"></span>
+                  <span class="text-center">Over Term</span>
+                  <span class="text-center">Over Full Loan</span>
+                </div>
+                <!-- P+I -->
+                <div class="grid grid-cols-3 gap-2 items-center bg-gray-800/40 p-2 rounded-md">
+                  <span class="text-gray-300">Principal & Interest</span>
+                  <span class="font-mono text-center">{{ s.totalPaidOverTerm - s.totalExtraPaymentsOverTerm | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span class="font-mono text-center">{{ s.totalPaid - s.totalExtraPayments | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <!-- Extra Payments -->
+                @if (s.totalExtraPayments > 0) {
+                  <div class="grid grid-cols-3 gap-2 items-center bg-gray-800/40 p-2 rounded-md">
+                    <span class="text-green-400">Extra Payments</span>
+                    <span class="font-mono text-center text-green-400">{{ s.totalExtraPaymentsOverTerm | currency:'USD':'symbol':'1.0-0' }}</span>
+                    <span class="font-mono text-center text-green-400">{{ s.totalExtraPayments | currency:'USD':'symbol':'1.0-0' }}</span>
+                  </div>
+                }
+                <!-- T+I -->
+                @if (s.totalTaxesAndInsuranceOverTerm > 0) {
+                  <div class="grid grid-cols-3 gap-2 items-center bg-gray-800/40 p-2 rounded-md">
+                    <span class="text-gray-300">Taxes & Insurance</span>
+                    <span class="font-mono text-center">{{ s.totalTaxesAndInsuranceOverTerm | currency:'USD':'symbol':'1.0-0' }}</span>
+                    <span class="font-mono text-center">{{ s.totalTaxesAndInsurance | currency:'USD':'symbol':'1.0-0' }}</span>
+                  </div>
+                }
+                <!-- Total -->
+                <div class="grid grid-cols-3 gap-2 items-center pt-2 mt-2 border-t border-gray-700/50">
+                  <span class="font-bold">Total Cost</span>
+                  <span class="font-bold font-mono text-center">
+                    {{ (s.totalPaidOverTerm + s.totalTaxesAndInsuranceOverTerm) | currency:'USD':'symbol':'1.0-0' }}
+                    @if(s.interestSavedOverTerm > 0) {
+                      <div class="text-xs text-gray-400 font-normal">vs {{ s.baselineTotalCostOverTerm | currency:'USD':'symbol':'1.0-0' }}</div>
+                    }
+                  </span>
+                  <span class="font-bold font-mono text-center">
+                     {{ s.totalLifetimeCost | currency:'USD':'symbol':'1.0-0' }}
+                     @if(s.interestSavedLifetime > 0) {
+                      <div class="text-xs text-gray-400 font-normal">vs {{ s.baselineTotalLifetimeCost | currency:'USD':'symbol':'1.0-0' }}</div>
+                     }
+                  </span>
+                </div>
+                <!-- Interest -->
+                 <div class="grid grid-cols-3 gap-2 items-center">
+                  <span class="text-yellow-400">Interest Paid</span>
+                  <span class="font-mono text-center text-yellow-400">
+                    {{ s.totalInterestOverTerm | currency:'USD':'symbol':'1.0-0' }}
+                    @if(s.interestSavedOverTerm > 0) {
+                      <div class="text-xs text-gray-400 font-normal">vs {{ s.baselineTotalInterestOverTerm | currency:'USD':'symbol':'1.0-0' }}</div>
+                    }
+                  </span>
+                  <span class="font-mono text-center text-yellow-400">
+                    {{ s.totalInterest | currency:'USD':'symbol':'1.0-0' }}
+                    @if(s.interestSavedLifetime > 0) {
+                     <div class="text-xs text-gray-400 font-normal">vs {{ s.baselineTotalInterest | currency:'USD':'symbol':'1.0-0' }}</div>
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Savings Summary -->
+          @if (s.interestSavedLifetime > 0) {
+            <div class="mt-6 pt-4 border-t border-gray-700/50">
+              <h4 class="text-sm font-semibold text-green-300 mb-3 text-center">Savings From Extra Payments</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Term Savings -->
+                <div class="bg-gray-800/50 p-3 rounded-lg flex flex-col justify-center">
+                  <h5 class="font-semibold text-center text-white mb-2 text-base">Over Current Term</h5>
+                  <div class="text-center">
+                    <p class="text-xs text-gray-400">Interest Saved</p>
+                    <p class="font-bold text-lg text-green-300">{{ s.interestSavedOverTerm | currency:'USD':'symbol':'1.0-0' }}</p>
+                  </div>
+                </div>
+
+                <!-- Lifetime Savings -->
+                <div class="bg-gray-800/50 p-3 rounded-lg">
+                  <h5 class="font-semibold text-center text-white mb-2 text-base">Over Full Loan</h5>
+                  <div class="flex justify-around items-center">
+                    <div class="text-center">
+                      <p class="text-xs text-gray-400">Time Saved</p>
+                      <p class="font-bold text-lg text-white">{{ s.timeSaved }}</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-xs text-gray-400">Interest Saved</p>
+                      <p class="font-bold text-lg text-green-300">{{ s.interestSavedLifetime | currency:'USD':'symbol':'1.0-0' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Yearly Extra Payments Breakdown -->
+          @if (yearlyExtraPayments().length > 0) {
+            <div class="mt-6 pt-4 border-t border-gray-700/50">
+              <h4 class="text-sm font-semibold text-gray-300 mb-2 text-center">Extra Payments by Year</h4>
+              <div class="max-h-32 overflow-y-auto bg-gray-800/50 p-3 rounded-lg text-sm space-y-1 pr-2">
+                @for(item of yearlyExtraPayments(); track item.year) {
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-400">{{ item.year }}</span>
+                    <span class="font-medium text-green-300">{{ item.amount | currency:'USD':'symbol':'1.0-0' }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Visuals & AI Toggles -->
+    <div class="my-6 text-center flex justify-center gap-4">
+      <button (click)="showGraphs.set(!showGraphs())" class="px-4 py-2 text-sm font-medium text-white bg-gray-600/50 hover:bg-gray-600/80 rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2 mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-fuchsia-400">
+            <path d="M1 1.5a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-17ZM2 10v7.5h7.5V10H2Z M10.5 2v7.5H18V2h-7.5Z" />
+            <path d="m3.857 12.857 2.571 2.572a.5.5 0 0 0 .708-.708L4.565 12.15a.5.5 0 0 0-.708.707Z" />
+            <path d="m11.15 8.16 2.57 2.571a.5.5 0 0 0 .708-.707L11.858 7.45a.5.5 0 0 0-.707.708Z" />
+            <path d="m11.85 4.143-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.707Z" />
+          </svg>
+        {{ showGraphs() ? 'Hide' : 'Show' }} Visual Analysis
+      </button>
+      <button (click)="showAdvisor.set(!showAdvisor())" class="px-4 py-2 text-sm font-medium text-white bg-gray-600/50 hover:bg-gray-600/80 rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2 mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-cyan-400">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 1-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 1 3.09-3.09L12 5.25l2.846.813a4.5 4.5 0 0 1 3.09 3.09L21.75 12l-2.846.813a4.5 4.5 0 0 1-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.898 20.575 16.5 21.75l-.398-1.175a3.375 3.375 0 0 0-2.456-2.456L12.75 18l1.175-.398a3.375 3.375 0 0 0 2.456-2.456L16.5 14.25l.398 1.175a3.375 3.375 0 0 0 2.456 2.456L20.25 18l-1.175.398a3.375 3.375 0 0 0-2.456 2.456Z" />
+        </svg>
+        {{ showAdvisor() ? 'Hide' : 'Show' }} AI Advisor
+      </button>
+    </div>
+  }
+
+  <!-- Mortgage Parameters Form -->
+  <form [formGroup]="mortgageForm" class="space-y-6">
+
+    <!-- Visual Analysis & What-If Block -->
+    @if(isGraphsVisible()) {
+      <div class="space-y-6">
+        <app-visual-analysis
+          [schedule]="amortizationSchedule()"
+          [baselineSchedule]="baselineSchedule()"
+          [fullSchedule]="fullAmortizationSchedule()"
+          [summary]="summary()"
+          [loanAmount]="mortgageForm.value.loanAmount ?? 0"
+          [annualPropertyTax]="mortgageForm.value.annualPropertyTax ?? 0"
+          [annualHomeInsurance]="mortgageForm.value.annualHomeInsurance ?? 0"
+          [monthlyPMI]="mortgageForm.value.monthlyPMI ?? 0"
+          [extraMonthlyPayment]="extraMonthlyPayment()"
+          [color]="color()"
+        />
+
+        <!-- What-If Analysis -->
+        <div class="bg-gray-900/30 p-4 rounded-lg">
+          <h4 class="font-semibold mb-3">What-If Analysis</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+            <!-- Interest Rate Slider -->
+            <div>
+              <label for="interestRate-slider-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Adjust Interest Rate (%)</label>
+              <div class="mt-1 flex items-center gap-3">
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="15" 
+                  step="0.05" 
+                  id="interestRate-slider-{{scenarioIndex()}}"
+                  class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                  [style.accentColor]="sliderAccentColor()"
+                  [value]="mortgageForm.value.interestRate ?? 0"
+                  (input)="updateInterestRate($event)"
+                >
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  formControlName="interestRate" 
+                  class="w-24 bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 text-center" 
+                  [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder"
+                >
+              </div>
+            </div>
+            <!-- Extra Monthly Payment Slider -->
+            <div>
+              <label for="extraPayment-slider-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Add Extra Monthly Payment ($)</label>
+              <div class="mt-1 flex items-center gap-3">
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="1000" 
+                  step="10" 
+                  id="extraPayment-slider-{{scenarioIndex()}}" 
+                  [value]="extraMonthlyPayment()" 
+                  (input)="updateExtraMonthlyPayment($event)" 
+                  class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                  [style.accentColor]="sliderAccentColor()"
+                >
+                <input 
+                  type="number" 
+                  step="10" 
+                  [value]="extraMonthlyPayment()" 
+                  (input)="updateExtraMonthlyPayment($event)" 
+                  class="w-24 bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 text-center" 
+                  [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if(!hideHeader()) {
+      <div class="mb-8" [hidden]="!showAdvisor()">
+        <app-ai-advisor 
+          [loanAmount]="mortgageForm.value.loanAmount ?? 0"
+          [interestRate]="mortgageForm.value.interestRate ?? 0"
+          [loanTerm]="totalLoanTermInYears()"
+          [monthlyPayment]="baseMonthlyPayment()"
+          [color]="color()"
+        />
+      </div>
+    }
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+      <div class="lg:col-span-2">
+        <label for="loanAmount-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Loan Amount ($)</label>
+        <input type="number" id="loanAmount-{{scenarioIndex()}}" formControlName="loanAmount" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+      </div>
+      <div>
+        <label for="interestRate-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Interest Rate (%)</label>
+        <input type="number" step="0.01" id="interestRate-{{scenarioIndex()}}" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+      </div>
+      <div>
+        <label for="rateType-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Rate Type</label>
+        <select id="rateType-{{scenarioIndex()}}" formControlName="rateType" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+          <option value="fixed">Fixed</option>
+          <option value="variable">Variable</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Amortization Period</label>
+        <div class="mt-1 grid grid-cols-2 gap-2">
+          <div>
+            <label for="loanTerm-{{scenarioIndex()}}" class="block text-xs text-gray-400 mb-1">Years</label>
+            <input type="number" id="loanTerm-{{scenarioIndex()}}" formControlName="loanTerm" min="0" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+          </div>
+          <div>
+            <label for="loanTermMonths-{{scenarioIndex()}}" class="block text-xs text-gray-400 mb-1">Months</label>
+            <input type="number" id="loanTermMonths-{{scenarioIndex()}}" formControlName="loanTermMonths" min="0" max="11" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+          </div>
+        </div>
+      </div>
+      <div>
+        <label for="termInYears-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Term (Years)</label>
+        <input type="number" id="termInYears-{{scenarioIndex()}}" formControlName="termInYears" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+      </div>
+      <div>
+        <label for="startDate-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Start Date</label>
+        <input type="date" id="startDate-{{scenarioIndex()}}" formControlName="startDate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+      </div>
+      <div>
+        <label for="paymentFrequency-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Payment Frequency</label>
+        <select id="paymentFrequency-{{scenarioIndex()}}" formControlName="paymentFrequency" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+          <option value="monthly">Monthly</option>
+          <option value="bi-weekly">Bi-Weekly</option>
+          <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+          <option value="weekly">Weekly</option>
+          <option value="accelerated-weekly">Accelerated Weekly</option>
+        </select>
+        @if (mortgageForm.value.paymentFrequency?.startsWith('accelerated')) {
+          <p class="text-xs text-gray-400 mt-2 p-2 bg-gray-900/40 rounded-md">
+            <strong>Note:</strong> Accelerated options make the equivalent of 13 monthly payments per year, paying down your loan faster and saving you interest.
+          </p>
+        }
+      </div>
+    </div>
+    
+    <!-- AI Goal Seeker -->
+    <div class="my-6">
+      <app-ai-goal-seeker
+        [loanAmount]="mortgageForm.value.loanAmount ?? 0"
+        [interestRate]="mortgageForm.value.interestRate ?? 0"
+        [loanTerm]="totalLoanTermInYears()"
+        [monthlyPayment]="baseMonthlyPayment()"
+        [color]="color()"
+      />
+    </div>
+
+    <!-- PITI Costs -->
+    <div class="bg-gray-900/30 p-4 rounded-lg">
+      <h4 class="font-semibold mb-3">Additional Housing Costs (PITI)</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="annualPropertyTax-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Annual Property Tax ($)</label>
+          <input type="number" id="annualPropertyTax-{{scenarioIndex()}}" formControlName="annualPropertyTax" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+        </div>
+        <div>
+          <label for="annualHomeInsurance-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Annual Home Insurance ($)</label>
+          <input type="number" id="annualHomeInsurance-{{scenarioIndex()}}" formControlName="annualHomeInsurance" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+        </div>
+        <div>
+          <label for="monthlyPMI-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Monthly PMI ($)</label>
+          <input type="number" id="monthlyPMI-{{scenarioIndex()}}" formControlName="monthlyPMI" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2" [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder">
+        </div>
+      </div>
+    </div>
+
+    <!-- Variable Rate Changes -->
+    @if (mortgageForm.value.rateType === 'variable') {
+      <div class="bg-gray-900/30 p-4 rounded-lg">
+        <h4 class="font-semibold mb-3">Variable Rate Changes</h4>
+        <div class="space-y-3 max-h-40 overflow-y-auto pr-2">
+          @for (change of rateChanges(); track $index; let i = $index) {
+            <div class="flex items-center gap-2 flex-wrap">
+              <input type="date" [value]="change.date" (change)="updateRateChangeDate(i, $event)" class="flex-grow bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing" title="Date of rate change">
+              <input type="number" step="0.01" [value]="change.rate" (change)="updateRateChangeRate(i, $event)" class="w-24 bg-gray-700 border-gray-600 rounded-md text-white p-1" [class]="colorClasses().focusRing" title="New interest rate">
+              <button (click)="removeRateChange(i)" class="text-red-500 hover:text-red-400 font-bold text-lg leading-none">&times;</button>
+            </div>
+          }
+        </div>
+        <button (click)="addRateChange()" class="mt-3 text-sm w-full text-center py-1 rounded-md" [class]="'bg-' + color() + '-600/50 hover:bg-' + color() + '-600/80'">+ Add Rate Change</button>
+      </div>
+    }
+  </form>
+
+  <!-- Prepayment Options -->
+  <div class="space-y-6">
+    <div class="bg-gray-900/30 p-4 rounded-lg">
+        <h4 class="font-semibold mb-3">Annual Payment Increase</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            <div class="sm:col-span-2">
+                <label for="annualIncrease-{{scenarioIndex()}}" class="block text-sm font-medium text-gray-300">Increase Percentage</label>
+                <p class="text-xs text-gray-500 mt-1">Increase your periodic payment by this percentage each year on your loan's anniversary.</p>
+            </div>
+            <div>
+                <input
+                    type="number"
+                    step="0.1"
+                    id="annualIncrease-{{scenarioIndex()}}"
+                    placeholder="e.g., 5 for 5%"
+                    [value]="annualPaymentIncreasePercentage() || ''"
+                    (change)="updateAnnualPaymentIncrease($event)"
+                    class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2"
+                    [class]="colorClasses().focusRing + ' ' + colorClasses().focusBorder"
+                >
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Recurring Payments -->
+      <div class="bg-gray-900/30 p-4 rounded-lg">
+        <h4 class="font-semibold mb-3">Recurring Extra Payments</h4>
+        <div class="space-y-3 max-h-40 overflow-y-auto pr-2">
+          @for (payment of recurringPayments(); track $index; let i = $index) {
+            <div class="flex items-start gap-2">
+              <div class="grid grid-cols-2 gap-x-2 gap-y-1 flex-grow">
+                  <label class="text-xs text-gray-400 col-span-2">Amount & Frequency</label>
+                  <input type="number" [value]="payment.amount" (change)="updateRecurringPaymentAmount(i, $event)" class="bg-gray-700 border-gray-600 rounded-md text-white p-1" [class]="colorClasses().focusRing">
+                  <select [value]="payment.frequency" (change)="updateRecurringPaymentFrequency(i, $event)" class="bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing">
+                      <option value="weekly">Weekly</option>
+                      <option value="accelerated-weekly">Accelerated Weekly</option>
+                      <option value="bi-weekly">Bi-Weekly</option>
+                      <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="quarterly">Quarterly</option>
+                      <option value="semi-annually">Semi-Annually</option>
+                      <option value="annually">Annually</option>
+                  </select>
+                  <label class="text-xs text-gray-400">Start Date</label>
+                  <label class="text-xs text-gray-400">End Date</label>
+                  <input type="date" [value]="payment.startDate || ''" (change)="updateRecurringPaymentStartDate(i, $event)" class="bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing" title="Start date (optional)">
+                  <input type="date" [value]="payment.endDate || ''" (change)="updateRecurringPaymentEndDate(i, $event)" class="bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing" title="End date (optional)">
+              </div>
+              <button (click)="removeRecurringPayment(i)" class="text-red-500 hover:text-red-400 font-bold text-lg leading-none mt-1">&times;</button>
+            </div>
+          }
+        </div>
+        <button (click)="addRecurringPayment()" class="mt-3 text-sm w-full text-center py-1 rounded-md" [class]="'bg-' + color() + '-600/50 hover:bg-' + color() + '-600/80'">+ Add Recurring</button>
+      </div>
+
+      <!-- One-Time Payments -->
+      <div class="bg-gray-900/30 p-4 rounded-lg">
+        <h4 class="font-semibold mb-3">One-Time Extra Payments</h4>
+        <div class="space-y-3 max-h-40 overflow-y-auto pr-2">
+          @for (payment of oneTimePayments(); track $index; let i = $index) {
+            <div class="flex items-center gap-2">
+              <input type="date" [value]="payment.date" (change)="updateOneTimePaymentDate(i, $event)" class="flex-grow bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing">
+              <input type="number" [value]="payment.amount" (change)="updateOneTimePaymentAmount(i, $event)" class="w-24 bg-gray-700 border-gray-600 rounded-md text-white p-1" [class]="colorClasses().focusRing">
+              <button (click)="removeOneTimePayment(i)" class="text-red-500 hover:text-red-400 font-bold text-lg leading-none">&times;</button>
+            </div>
+          }
+        </div>
+        <button (click)="addOneTimePayment()" class="mt-3 text-sm w-full text-center py-1 rounded-md" [class]="'bg-' + color() + '-600/50 hover:bg-' + color() + '-600/80'">+ Add One-Time</button>
+      </div>
+      
+      <!-- Deferments -->
+      <div class="bg-gray-900/30 p-4 rounded-lg">
+        <h4 class="font-semibold mb-3">Skip a Payment (Defer)</h4>
+        <div class="space-y-3 max-h-40 overflow-y-auto pr-2">
+          @for (defermentDate of deferments(); track $index; let i = $index) {
+            <div class="flex items-center gap-2">
+              <input type="date" [value]="defermentDate" (change)="updateDefermentDate(i, $event)" class="flex-grow bg-gray-700 border-gray-600 rounded-md text-white p-1 text-sm" [class]="colorClasses().focusRing">
+              <button (click)="removeDeferment(i)" class="text-red-500 hover:text-red-400 font-bold text-lg leading-none">&times;</button>
+            </div>
+          }
+        </div>
+        <button (click)="addDeferment()" class="mt-3 text-sm w-full text-center py-1 rounded-md" [class]="'bg-' + color() + '-600/50 hover:bg-' + color() + '-600/80'">+ Add Deferment</button>
+      </div>
+    </div>
+  </div>
+
+  @if (!hideHeader()) {
+    <!-- Amortization Table -->
+    <section>
+      <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-gray-200">Amortization Schedule</h3>
+          <div class="flex items-center gap-2 p-1 bg-gray-700/50 rounded-lg">
+              <button
+                  (click)="amortizationScope.set('term')"
+                  class="px-3 py-1 text-xs font-semibold rounded-md transition-colors duration-200"
+                  [class.bg-cyan-600]="amortizationScope() === 'term'"
+                  [class.text-white]="amortizationScope() === 'term'"
+                  [class.hover:bg-gray-600]="amortizationScope() !== 'term'"
+              >
+                  Term View
+              </button>
+              <button
+                  (click)="amortizationScope.set('full')"
+                  class="px-3 py-1 text-xs font-semibold rounded-md transition-colors duration-200"
+                  [class.bg-cyan-600]="amortizationScope() === 'full'"
+                  [class.text-white]="amortizationScope() === 'full'"
+                  [class.hover:bg-gray-600]="amortizationScope() !== 'full'"
+              >
+                  Full Amortization
+              </button>
+          </div>
+      </div>
+      <app-amortization-table 
+          [schedule]="displaySchedule()"
+          (adHocPaymentChange)="onAdHocPaymentChange($event)"
+      />
+    </section>
+  }
+</div>

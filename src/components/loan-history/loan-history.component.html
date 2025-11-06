@@ -1,0 +1,249 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8">
+
+  <!-- Header -->
+  <header class="flex justify-between items-center flex-wrap gap-4">
+    <h2 class="text-2xl font-semibold text-fuchsia-400">Loan History & Projection</h2>
+    <div class="flex items-center gap-2">
+      <button (click)="exportAsCsv()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
+        Export CSV
+      </button>
+      <button (click)="saveAsPdf()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
+        Save as PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Original Loan Form -->
+  <section>
+    <h3 class="text-xl font-semibold text-gray-200 mb-4">Original Loan Details</h3>
+    <form [formGroup]="originalLoanForm" (ngSubmit)="recalculateHistory()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-gray-900/50 p-4 rounded-lg">
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Purchase Price ($)</label>
+        <input type="number" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Down Payment ($)</label>
+        <input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-300">Interest Rate (%)</label>
+        <input type="number" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Start Date</label>
+        <input type="date" formControlName="startDate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Amortization (Yrs)</label>
+        <input type="number" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Term (Yrs)</label>
+        <input type="number" formControlName="term" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300">Payment Frequency</label>
+        <select formControlName="paymentFrequency" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+          <option value="monthly">Monthly</option>
+          <option value="bi-weekly">Bi-Weekly</option>
+          <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+          <option value="weekly">Weekly</option>
+          <option value="accelerated-weekly">Accelerated Weekly</option>
+        </select>
+      </div>
+    </form>
+  </section>
+
+  <!-- Summary & Visuals -->
+  @if(summary(); as s) {
+    <section>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-gray-900/50 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-center mb-4 text-gray-200">Lifetime Projection Summary</h3>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="font-semibold text-gray-400"></div>
+                    <div class="font-semibold text-cyan-400">Original</div>
+                    <div class="font-semibold text-fuchsia-400">Actual/Projected</div>
+                    
+                    <div class="text-gray-400 text-right">Payoff Date</div>
+                    <div>{{ s.originalPayoffDate | date:'MMM yyyy' }}</div>
+                    <div>{{ s.actualPayoffDate | date:'MMM yyyy' }}</div>
+                    
+                    <div class="text-gray-400 text-right">Total Interest</div>
+                    <div>{{ s.originalTotalInterest | currency:'USD':'symbol':'1.0-0' }}</div>
+                    <div>{{ s.actualTotalInterest | currency:'USD':'symbol':'1.0-0' }}</div>
+                    
+                    <div class="text-gray-400 text-right">Interest Saved</div>
+                    <div class="col-span-2 text-2xl font-bold text-green-400">
+                        {{ (s.originalTotalInterest - s.actualTotalInterest) | currency:'USD':'symbol':'1.0-0' }}
+                    </div>
+                </div>
+            </div>
+            <app-loan-history-chart
+                [originalSchedule]="originalSchedule()"
+                [actualSchedule]="actualSchedule()"
+                [events]="events()"
+            />
+        </div>
+    </section>
+  }
+
+  <!-- Loan Events Timeline -->
+  <section>
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold text-gray-200">Loan Events Timeline</h3>
+      <div class="flex items-center gap-2">
+        <button (click)="openEventModal('refinance')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md">+ Refinance</button>
+        <button (click)="openEventModal('renewal')" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-md">+ Renewal</button>
+        <button (click)="openEventModal('lumpSum')" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md">+ Lump Sum</button>
+        <button (click)="openEventModal('missedPayment')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-md">+ Skip Payment</button>
+      </div>
+    </div>
+    
+    @if(loanSegments().length === 0) {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">No loan history to display. Please fill out the original loan details to begin.</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (segment of loanSegments(); track segment.startDate; let i = $index) {
+          <div class="bg-gray-900/50 rounded-lg p-4 border-l-4" [class]="'border-' + (segment.event ? eventColorMap[segment.event.type] : 'gray') + '-500'">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-lg" [class]="'text-' + (segment.event ? eventColorMap[segment.event.type] : 'gray') + '-400'">
+                  {{ segment.event ? (segment.event.type | titlecase) : 'Initial Loan' }}
+                </span>
+                <span class="text-sm text-gray-400">
+                  {{ segment.startDate | date:'mediumDate' }} &ndash; {{ segment.endDate ? (segment.endDate | date:'mediumDate') : 'Current' }}
+                </span>
+              </div>
+              @if(segment.event) {
+                <div>
+                  <button (click)="editEvent(segment.event)" class="text-sm text-blue-400 hover:text-blue-300">Edit</button>
+                  <button (click)="deleteEvent(segment.event.id)" class="text-sm text-red-400 hover:text-red-300 ml-2">Delete</button>
+                </div>
+              }
+            </div>
+            
+            <!-- Details Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+              <!-- Balances -->
+              <div>
+                <p class="text-xs text-gray-500">Start Balance</p>
+                <p class="font-mono">{{ segment.startingBalance | currency:'USD':'symbol':'1.0-0' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">End Balance</p>
+                <p class="font-mono">{{ segment.endingBalance | currency:'USD':'symbol':'1.0-0' }}</p>
+              </div>
+              <!-- Rate & Payment -->
+              <div>
+                <p class="text-xs text-gray-500">Interest Rate</p>
+                <p>{{ segment.interestRate | number:'1.2-3' }}%</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">{{ segment.paymentFrequency }} Payment</p>
+                <p class="font-mono">{{ segment.periodicPayment | currency }}</p>
+              </div>
+              
+              <!-- Event Specific Details -->
+              @if(segment.event; as event) {
+                @switch(event.type) {
+                  @case('refinance') {
+                    @let details = getRefinanceDetails(event.details);
+                    <div><p class="text-xs text-gray-500">New Term</p><p>{{ details.newLoanTerm }} years</p></div>
+                    @if(details.cashOutAmount > 0) {
+                      <div><p class="text-xs text-gray-500">Cash Out</p><p class="text-green-400">{{ details.cashOutAmount | currency }}</p></div>
+                    }
+                    @if(details.closingCosts > 0) {
+                      <div><p class="text-xs text-gray-500">Closing Costs</p><p>{{ details.closingCosts | currency }}</p></div>
+                    }
+                  }
+                  @case('renewal') {
+                    @let details = getRenewalDetails(event.details);
+                    <div><p class="text-xs text-gray-500">New Term</p><p>{{ details.newTerm }} years</p></div>
+                  }
+                  @case('lumpSum') {
+                    @let details = getLumpSumDetails(event.details);
+                    <div class="md:col-span-2"><p class="text-xs text-gray-500">Lump Sum Amount</p><p class="text-green-400">{{ details.amount | currency }}</p></div>
+                  }
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Amortization Schedule -->
+  <section>
+    <h3 class="text-xl font-semibold text-gray-200 mb-4">Lifetime Amortization Schedule</h3>
+    <app-amortization-table 
+        [schedule]="actualSchedule()"
+        (adHocPaymentChange)="onAdHocPaymentChange($event)"
+    />
+  </section>
+  
+</div>
+
+<!-- Event Modal -->
+@if (editingEvent(); as event) {
+  <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-lg border border-gray-600">
+      <h3 class="text-xl font-semibold mb-4 text-fuchsia-400">{{ event.id ? 'Edit' : 'Add' }} {{ event.type | titlecase }} Event</h3>
+      <form [formGroup]="eventForm" (ngSubmit)="saveEvent()" class="space-y-4">
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Date</label>
+          <input type="date" formControlName="date" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+        </div>
+
+        @switch(event.type) {
+          @case('refinance') {
+            <div><label class="block text-sm font-medium text-gray-300">New Interest Rate (%)</label><input type="number" formControlName="newInterestRate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">New Amortization (Years)</label><input type="number" formControlName="newLoanTerm" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Cash Out Amount ($)</label><input type="number" formControlName="cashOutAmount" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Closing Costs ($)</label><input type="number" formControlName="closingCosts" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">New Payment Frequency</label>
+              <select formControlName="paymentFrequency" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+                <option value="monthly">Monthly</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+                <option value="weekly">Weekly</option>
+                <option value="accelerated-weekly">Accelerated Weekly</option>
+              </select>
+            </div>
+          }
+          @case('renewal') {
+            <div><label class="block text-sm font-medium text-gray-300">New Interest Rate (%)</label><input type="number" formControlName="renewalInterestRate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">New Term (Years)</label><input type="number" formControlName="renewalTerm" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">New Payment Frequency</label>
+              <select formControlName="paymentFrequency" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
+                <option value="monthly">Monthly</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+                <option value="weekly">Weekly</option>
+                <option value="accelerated-weekly">Accelerated Weekly</option>
+              </select>
+            </div>
+          }
+          @case('lumpSum') {
+            <div><label class="block text-sm font-medium text-gray-300">Lump Sum Amount ($)</label><input type="number" formControlName="lumpSumAmount" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2"></div>
+          }
+          @case('missedPayment') {
+            <p class="text-sm text-gray-400">The interest for this period will be added to your principal balance. The date should be on or near a scheduled payment date.</p>
+          }
+        }
+        
+        <div class="flex justify-end gap-4 mt-6">
+          <button type="button" (click)="editingEvent.set(null)" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg">Cancel</button>
+          <button type="submit" [disabled]="eventForm.invalid" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 disabled:bg-gray-500 text-white font-semibold rounded-lg">Save Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
