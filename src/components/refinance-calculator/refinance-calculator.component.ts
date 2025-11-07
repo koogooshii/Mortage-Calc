@@ -1,11 +1,14 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, viewChild } from '@angular/core';
-import { ReactiveFormsModule, FormControl } from '@angular/forms';
+
+
+import { Component, ChangeDetectionStrategy, signal, computed, inject, viewChild, effect } from '@angular/core';
+import { ReactiveFormsModule, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 
-import { MortgageCalculatorComponent } from '../mortgage-calculator/mortgage-calculator.component';
+import { MortgageCalculatorComponent, ScenarioState } from '../mortgage-calculator/mortgage-calculator.component';
 import { MortgageSummary, RecurringPayment } from '../../models/mortgage.model';
 import { PdfExportService } from '../../services/pdf-export.service';
+import { ScenarioPersistenceService } from '../../services/scenario-persistence.service';
 
 @Component({
   selector: 'app-refinance-calculator',
@@ -16,21 +19,81 @@ import { PdfExportService } from '../../services/pdf-export.service';
 })
 export class RefinanceCalculatorComponent {
   private pdfExportService = inject(PdfExportService);
+  private scenarioService = inject(ScenarioPersistenceService);
+  private fb = inject(FormBuilder);
 
   currentLoanCalculator = viewChild.required<MortgageCalculatorComponent>('currentLoanCalculator');
   newLoanCalculator = viewChild.required<MortgageCalculatorComponent>('newLoanCalculator');
   
+  // State management for child components
+  currentLoanState = signal<ScenarioState>(this.scenarioService.getDefaultScenario());
+  newLoanState = signal<ScenarioState>(this.scenarioService.getDefaultScenario());
+  
   currentLoanSummary = signal<MortgageSummary | null>(null);
   newLoanSummary = signal<MortgageSummary | null>(null);
-  currentLoanFormValues = signal<any | null>(null);
-  newLoanFormValues = signal<any | null>(null);
-  currentLoanExtraPayments = signal<{ extraMonthly: number, recurring: RecurringPayment[] }>({ extraMonthly: 0, recurring: [] });
-  newLoanExtraPayments = signal<{ extraMonthly: number, recurring: RecurringPayment[] }>({ extraMonthly: 0, recurring: [] });
 
   closingCostsControl = new FormControl(5000);
-  closingCosts = toSignal(this.closingCostsControl.valueChanges, { initialValue: 5000 });
+  private initialClosingCosts = signal(5000); // User-entered value
 
   showVisuals = signal(false);
+  showPenaltyCalc = signal(false);
+
+  // --- Penalty Calculation ---
+  penaltyForm = this.fb.group({
+    currentBalance: [0, [Validators.required, Validators.min(0)]],
+    currentRate: [0, [Validators.required, Validators.min(0)]],
+    remainingMonths: [0, [Validators.required, Validators.min(1)]],
+    postedRate: [0, [Validators.required, Validators.min(0)]],
+  });
+
+  private penaltyFormValues = toSignal(this.penaltyForm.valueChanges, {
+    initialValue: this.penaltyForm.getRawValue(),
+  });
+
+  threeMonthPenalty = computed(() => {
+    const { currentBalance, currentRate } = this.penaltyFormValues();
+    if (!currentBalance || !currentRate || currentRate <= 0) return 0;
+    return (currentBalance * (currentRate / 100)) / 4;
+  });
+
+  irdPenalty = computed(() => {
+    const { currentBalance, currentRate, remainingMonths, postedRate } = this.penaltyFormValues();
+    if (!currentBalance || !currentRate || !remainingMonths || !postedRate) return 0;
+    const rateDifference = (currentRate - postedRate) / 100;
+    if (rateDifference <= 0) return 0;
+    const remainingYears = (remainingMonths ?? 0) / 12;
+    return (currentBalance ?? 0) * rateDifference * remainingYears;
+  });
+
+  finalPenalty = computed(() => {
+    if (!this.penaltyForm.valid || !this.showPenaltyCalc()) return 0;
+    return Math.max(this.threeMonthPenalty(), this.irdPenalty());
+  });
+  // --- End Penalty Calculation ---
+  
+  constructor() {
+     // When user types in closing costs, save it as the initial value
+    this.closingCostsControl.valueChanges.subscribe(value => {
+      this.initialClosingCosts.set(value ?? 0);
+    });
+
+    // Automatically add calculated penalty to the closing costs
+    effect(() => {
+      const penalty = this.finalPenalty();
+      const initialCosts = this.initialClosingCosts();
+      this.closingCostsControl.setValue(initialCosts + penalty, { emitEvent: false });
+    }, { allowSignalWrites: true });
+    
+     // Sync current loan balance to penalty calculator
+    effect(() => {
+      const currentLoanAmount = this.currentLoanState().formValues.loanAmount;
+      const currentRate = this.currentLoanState().formValues.interestRate;
+      this.penaltyForm.patchValue({
+          currentBalance: currentLoanAmount,
+          currentRate: currentRate
+      }, { emitEvent: false });
+    });
+  }
 
   monthlySavings = computed(() => {
     const currentPITI = this.currentLoanSummary()?.totalMonthlyPITIEquivalent ?? 0;
@@ -40,7 +103,7 @@ export class RefinanceCalculatorComponent {
   });
 
   breakevenMonths = computed(() => {
-    const costs = this.closingCosts() ?? 0;
+    const costs = this.closingCostsControl.value ?? 0;
     const savings = this.monthlySavings();
     if (costs <= 0 || savings <= 0) return 0;
     return costs / savings;
@@ -49,8 +112,10 @@ export class RefinanceCalculatorComponent {
   totalInterestSavings = computed(() => {
     const currentInterest = this.currentLoanSummary()?.totalInterest ?? 0;
     const newInterest = this.newLoanSummary()?.totalInterest ?? 0;
+    const penalty = this.finalPenalty();
     if (currentInterest <= 0 || newInterest <= 0) return 0;
-    return currentInterest - newInterest;
+    // Net savings is interest saved minus the penalty cost
+    return currentInterest - (newInterest + penalty);
   });
 
   private formatAmortization(formValues: any): string {
@@ -58,15 +123,9 @@ export class RefinanceCalculatorComponent {
     const years = formValues.loanTerm ?? 0;
     const months = formValues.loanTermMonths ?? 0;
     if (years === 0 && months === 0) return '--';
-    
     let result = '';
-    if (years > 0) {
-      result += `${years} year${years > 1 ? 's' : ''}`;
-    }
-    if (months > 0) {
-      if (result) result += ', ';
-      result += `${months} month${months > 1 ? 's' : ''}`;
-    }
+    if (years > 0) result += `${years} year${years > 1 ? 's' : ''}`;
+    if (months > 0) { if (result) result += ', '; result += `${months} month${months > 1 ? 's' : ''}`; }
     return result;
   }
 
@@ -77,166 +136,44 @@ export class RefinanceCalculatorComponent {
       case 'accelerated-weekly': return 'Accelerated Weekly';
       case 'bi-weekly': return 'Bi-Weekly';
       case 'accelerated-bi-weekly': return 'Accelerated Bi-Weekly';
-      case 'monthly':
-      default:
-        return 'Monthly';
+      default: return 'Monthly';
     }
   };
 
-  private calculatePeriodicExtraPayment(
-    extraMonthly: number,
-    recurring: RecurringPayment[],
-    paymentFrequency: string
-  ): number {
-    if (!paymentFrequency) return 0;
-    
-    let totalAnnualExtra = extraMonthly * 12;
+  currentLoanAmortization = computed(() => this.formatAmortization(this.currentLoanState().formValues));
+  newLoanAmortization = computed(() => this.formatAmortization(this.newLoanState().formValues));
+  currentLoanTerm = computed(() => `${this.currentLoanState().formValues.termInYears} years`);
+  newLoanTerm = computed(() => `${this.newLoanState().formValues.termInYears} years`);
 
-    recurring.forEach(p => {
-      switch (p.frequency) {
-        case 'weekly':
-        case 'accelerated-weekly':
-          totalAnnualExtra += p.amount * 52;
-          break;
-        case 'bi-weekly':
-        case 'accelerated-bi-weekly':
-          totalAnnualExtra += p.amount * 26;
-          break;
-        case 'monthly':
-          totalAnnualExtra += p.amount * 12;
-          break;
-        case 'quarterly':
-          totalAnnualExtra += p.amount * 4;
-          break;
-        case 'semi-annually':
-          totalAnnualExtra += p.amount * 2;
-          break;
-        case 'annually':
-          totalAnnualExtra += p.amount;
-          break;
-      }
-    });
+  currentPeriodicPayment = computed(() => this.currentLoanSummary()?.totalPeriodicPITI ?? 0);
+  newPeriodicPayment = computed(() => this.newLoanSummary()?.totalPeriodicPITI ?? 0);
 
-    if (totalAnnualExtra === 0) return 0;
+  currentPaymentFrequencyLabel = computed(() => this.getPaymentFrequencyLabel(this.currentLoanState().formValues.paymentFrequency));
+  newPaymentFrequencyLabel = computed(() => this.getPaymentFrequencyLabel(this.newLoanState().formValues.paymentFrequency));
 
-    switch (paymentFrequency) {
-      case 'weekly':
-      case 'accelerated-weekly':
-        return totalAnnualExtra / 52;
-      case 'bi-weekly':
-      case 'accelerated-bi-weekly':
-        return totalAnnualExtra / 26;
-      case 'monthly':
-      default:
-        return totalAnnualExtra / 12;
-    }
-  }
-
-  currentLoanAmortization = computed(() => this.formatAmortization(this.currentLoanFormValues()));
-  newLoanAmortization = computed(() => this.formatAmortization(this.newLoanFormValues()));
-  
-  currentLoanTerm = computed(() => {
-      const term = this.currentLoanFormValues()?.termInYears;
-      return term ? `${term} year${term > 1 ? 's' : ''}` : '--';
-  });
-
-  newLoanTerm = computed(() => {
-      const term = this.newLoanFormValues()?.termInYears;
-      return term ? `${term} year${term > 1 ? 's' : ''}` : '--';
-  });
-  
-  currentPeriodicPayment = computed(() => {
-    const basePayment = this.currentLoanSummary()?.totalPeriodicPITI ?? 0;
-    const extraPayments = this.calculatePeriodicExtraPayment(
-      this.currentLoanExtraPayments().extraMonthly,
-      this.currentLoanExtraPayments().recurring,
-      this.currentLoanFormValues()?.paymentFrequency
-    );
-    return basePayment + extraPayments;
-  });
-
-  newPeriodicPayment = computed(() => {
-    const basePayment = this.newLoanSummary()?.totalPeriodicPITI ?? 0;
-    const extraPayments = this.calculatePeriodicExtraPayment(
-      this.newLoanExtraPayments().extraMonthly,
-      this.newLoanExtraPayments().recurring,
-      this.newLoanFormValues()?.paymentFrequency
-    );
-    return basePayment + extraPayments;
-  });
-
-  currentPaymentFrequencyLabel = computed(() => this.getPaymentFrequencyLabel(this.currentLoanFormValues()?.paymentFrequency));
-  newPaymentFrequencyLabel = computed(() => this.getPaymentFrequencyLabel(this.newLoanFormValues()?.paymentFrequency));
-
-  updateCurrentLoan(data: { 
-    summary: MortgageSummary | null; 
-    formValues: any; 
-    extraMonthlyPayment: number; 
-    recurringPayments: RecurringPayment[] 
-  }): void {
+  updateCurrentLoanSummary(data: { summary: MortgageSummary | null; }): void {
     this.currentLoanSummary.set(data.summary);
-    this.currentLoanFormValues.set(data.formValues);
-    this.currentLoanExtraPayments.set({ extraMonthly: data.extraMonthlyPayment, recurring: data.recurringPayments });
   }
 
-  updateNewLoan(data: { 
-    summary: MortgageSummary | null; 
-    formValues: any;
-    extraMonthlyPayment: number;
-    recurringPayments: RecurringPayment[];
-  }): void {
+  updateNewLoanSummary(data: { summary: MortgageSummary | null; }): void {
     this.newLoanSummary.set(data.summary);
-    this.newLoanFormValues.set(data.formValues);
-    this.newLoanExtraPayments.set({ extraMonthly: data.extraMonthlyPayment, recurring: data.recurringPayments });
   }
 
   async saveAsPdf(): Promise<void> {
-    const currentCalc = this.currentLoanCalculator();
-    const newCalc = this.newLoanCalculator();
     const currentSummary = this.currentLoanSummary();
     const newSummary = this.newLoanSummary();
-
-    if (!currentSummary || !newSummary || !this.currentLoanFormValues() || !this.newLoanFormValues()) {
-      console.error("Missing data for PDF export");
-      return;
-    }
-
-    const refinanceAnalysis = {
-      monthlySavings: this.monthlySavings(),
-      breakevenMonths: this.breakevenMonths(),
-      totalInterestSavings: this.totalInterestSavings(),
-      closingCosts: this.closingCosts() ?? 0,
-    };
+    if (!currentSummary || !newSummary) return;
 
     const wereVisualsHidden = !this.showVisuals();
-    if (wereVisualsHidden) {
-      this.showVisuals.set(true);
-      // Wait for change detection and rendering of child components
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-
-    const currentCharts = currentCalc.getChartImages();
-    const newCharts = newCalc.getChartImages();
-    
-    // Revert UI state if we changed it
-    if (wereVisualsHidden) {
-      this.showVisuals.set(false);
-    }
+    if (wereVisualsHidden) { this.showVisuals.set(true); await new Promise(r => setTimeout(r, 50)); }
+    const currentCharts = this.currentLoanCalculator().getChartImages();
+    const newCharts = this.newLoanCalculator().getChartImages();
+    if (wereVisualsHidden) { this.showVisuals.set(false); }
 
     this.pdfExportService.exportRefinanceAsPdf(
-      {
-        params: this.currentLoanFormValues(),
-        summary: currentSummary,
-        schedule: currentCalc.displaySchedule(),
-        charts: currentCharts
-      },
-      {
-        params: this.newLoanFormValues(),
-        summary: newSummary,
-        schedule: newCalc.displaySchedule(),
-        charts: newCharts
-      },
-      refinanceAnalysis
+      { params: this.currentLoanState().formValues, summary: currentSummary, schedule: this.currentLoanCalculator().displaySchedule(), charts: currentCharts },
+      { params: this.newLoanState().formValues, summary: newSummary, schedule: this.newLoanCalculator().displaySchedule(), charts: newCharts },
+      { monthlySavings: this.monthlySavings(), breakevenMonths: this.breakevenMonths(), totalInterestSavings: this.totalInterestSavings(), closingCosts: this.closingCostsControl.value ?? 0 }
     );
   }
 }

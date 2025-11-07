@@ -1,0 +1,79 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-4xl mx-auto">
+    
+  <!-- Form Section -->
+  <section>
+    <form [formGroup]="taxForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+      <div>
+        <label for="purchasePrice" class="block text-sm font-medium text-gray-300">Purchase Price</label>
+        <input type="number" id="purchasePrice" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-purple-500 focus:border-purple-500">
+      </div>
+      <div>
+        <label for="province" class="block text-sm font-medium text-gray-300">Province</label>
+        <select id="province" formControlName="province" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-purple-500 focus:border-purple-500">
+          <option value="ON">Ontario</option>
+          <option value="BC">British Columbia</option>
+          <option value="QC">Quebec</option>
+          <option value="AB">Alberta</option>
+          <option value="MB">Manitoba</option>
+          <option value="SK">Saskatchewan</option>
+          <option value="NS">Nova Scotia</option>
+          <option value="NB">New Brunswick</option>
+          <option value="PE">Prince Edward Island</option>
+          <option value="NL">Newfoundland & Labrador</option>
+        </select>
+      </div>
+      <div class="md:col-span-2 flex items-start gap-4">
+        @if (taxForm.value.province === 'ON') {
+          <div class="flex items-center">
+            <input id="isToronto" formControlName="isToronto" type="checkbox" class="h-4 w-4 rounded border-gray-500 bg-gray-700 text-purple-600 focus:ring-purple-600">
+            <label for="isToronto" class="ml-2 block text-sm text-gray-300">Property is in Toronto?</label>
+          </div>
+        }
+        <div class="flex items-center">
+          <input id="isFirstTimeBuyer" formControlName="isFirstTimeBuyer" type="checkbox" class="h-4 w-4 rounded border-gray-500 bg-gray-700 text-purple-600 focus:ring-purple-600">
+          <label for="isFirstTimeBuyer" class="ml-2 block text-sm text-gray-300">First-Time Home Buyer?</label>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+    <h3 class="text-2xl font-semibold text-center mb-6 text-gray-200">Tax Calculation</h3>
+    @if(taxForm.valid && taxResult(); as result) {
+      <div class="bg-gray-900/50 rounded-lg p-6 space-y-6">
+        <!-- Main Result -->
+        <div class="text-center">
+          <p class="text-lg text-gray-300">Total Land Transfer Tax</p>
+          <p class="text-5xl font-extrabold text-purple-400 tracking-tight my-2">{{ result.totalTax | currency:'USD':'symbol':'1.2-2' }}</p>
+          @if (result.rebate > 0) {
+            <p class="text-sm text-green-400">Includes a {{ result.rebate | currency }} first-time buyer rebate.</p>
+          }
+        </div>
+        
+        <!-- Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-700/50">
+          <div class="bg-gray-800/50 p-4 rounded-lg text-center">
+            <h4 class="font-semibold text-white mb-2">Provincial Tax</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ result.provincialTax | currency }}</p>
+          </div>
+          <div class="bg-gray-800/50 p-4 rounded-lg text-center">
+            <h4 class="font-semibold text-white mb-2">Municipal Tax</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ result.municipalTax | currency }}</p>
+             @if (taxForm.value.province !== 'ON' || !taxForm.value.isToronto) {
+                 <p class="text-xs text-gray-500 mt-1">(Only applicable in certain cities, like Toronto)</p>
+             }
+          </div>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 pt-4">
+          <p><strong>Disclaimer:</strong> This is an estimate for informational purposes. Rates are subject to change and additional municipal taxes or rebates may apply. Consult with a legal professional for exact figures.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">Please fill out all fields to calculate the estimated tax.</p>
+      </div>
+    }
+  </section>
+</div>

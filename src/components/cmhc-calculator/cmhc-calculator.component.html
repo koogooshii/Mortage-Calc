@@ -1,0 +1,93 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-4xl mx-auto">
+    
+  <!-- Form Section -->
+  <section>
+    <form [formGroup]="cmhcForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+      <div>
+        <label for="purchasePrice" class="block text-sm font-medium text-gray-300">Purchase Price</label>
+        <input type="number" id="purchasePrice" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-orange-500 focus:border-orange-500">
+         @if((cmhcForm.value.purchasePrice ?? 0) >= 1000000) {
+            <p class="text-xs text-red-400 mt-1">Properties over $1,000,000 are not eligible for mortgage insurance.</p>
+        }
+      </div>
+      <div>
+        <label for="downPayment" class="block text-sm font-medium text-gray-300">Down Payment</label>
+        <input type="number" id="downPayment" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-orange-500 focus:border-orange-500">
+         @if(ltv() <= 80) {
+            <p class="text-xs text-green-400 mt-1">With 20% or more down, insurance is typically not required.</p>
+        }
+      </div>
+      <div>
+        <label for="amortizationPeriod" class="block text-sm font-medium text-gray-300">Amortization Period (Years)</label>
+        <input type="number" id="amortizationPeriod" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-orange-500 focus:border-orange-500">
+      </div>
+      <div>
+        <label for="province" class="block text-sm font-medium text-gray-300">Province</label>
+        <select id="province" formControlName="province" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-orange-500 focus:border-orange-500">
+          <option value="ON">Ontario</option>
+          <option value="QC">Quebec</option>
+          <option value="BC">British Columbia</option>
+          <option value="AB">Alberta</option>
+          <option value="MB">Manitoba</option>
+          <option value="SK">Saskatchewan</option>
+          <option value="NS">Nova Scotia</option>
+          <option value="NB">New Brunswick</option>
+          <option value="PE">Prince Edward Island</option>
+          <option value="NL">Newfoundland & Labrador</option>
+        </select>
+      </div>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+    <h3 class="text-2xl font-semibold text-center mb-6 text-gray-200">Insurance Premium Calculation</h3>
+    @if(cmhcForm.valid) {
+      @if (isEligible()) {
+        <div class="bg-gray-900/50 rounded-lg p-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div>
+              <p class="text-sm text-gray-400">Loan-to-Value (LTV)</p>
+              <p class="text-3xl font-bold text-white">{{ ltv() | number:'1.2-2' }}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">Premium Rate</p>
+              <p class="text-3xl font-bold text-white">{{ premiumRate() | percent:'1.2-2' }}</p>
+            </div>
+             <div>
+              <p class="text-sm text-gray-400">Insurance Premium</p>
+              <p class="text-3xl font-bold text-orange-400">{{ premiumAmount() | currency:'USD':'symbol':'1.2-2' }}</p>
+            </div>
+          </div>
+          
+          <div class="pt-6 border-t border-gray-700/50">
+            @if (pstOnPremium() > 0) {
+              <div class="flex justify-between items-center text-lg mb-2">
+                  <span class="text-gray-300">PST on Premium ({{ pstRate() | percent }}):</span>
+                  <span class="font-semibold text-white">{{ pstOnPremium() | currency }}</span>
+              </div>
+            }
+            <div class="flex justify-between items-center text-lg font-bold">
+                <span class="text-white">Total Insurance Cost:</span>
+                <span class="text-orange-400">{{ totalInsuranceCost() | currency }}</span>
+            </div>
+             <div class="flex justify-between items-center text-lg font-bold mt-4">
+                <span class="text-white">Total Mortgage Amount:</span>
+                <span class="text-green-400">{{ totalMortgage() | currency }}</span>
+            </div>
+            <p class="text-xs text-gray-500 text-right mt-1">(Loan Amount + Premium)</p>
+          </div>
+        </div>
+      } @else {
+        <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+          <p class="text-lg text-gray-300">Mortgage insurance is not required or the property is not eligible.</p>
+          <p class="text-gray-400 mt-2">Insurance is typically required when the down payment is less than 20% (LTV > 80%) and the purchase price is under $1,000,000.</p>
+        </div>
+      }
+    } @else {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">Please fill out all fields to calculate the estimated premium.</p>
+      </div>
+    }
+  </section>
+</div>

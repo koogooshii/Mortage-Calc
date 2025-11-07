@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, effect, computed, input, output, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MortgageService } from '../../services/mortgage.service';
 import { AmortizationEntry, MortgageSummary, OneTimePayment, RecurringPayment, PaymentFrequency, RecurringPaymentFrequency, RateChange } from '../../models/mortgage.model';
@@ -9,11 +8,16 @@ import { AiAdvisorComponent } from '../ai-advisor/ai-advisor.component';
 import { VisualAnalysisComponent } from '../visual-analysis/visual-analysis.component';
 import { PdfExportService, ChartImages } from '../../services/pdf-export.service';
 import { AiGoalSeekerComponent } from '../ai-goal-seeker/ai-goal-seeker.component';
+import { ScenarioState } from '../../models/scenario.model';
+import { GeminiAiService } from '../../services/gemini-ai.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+
+export { ScenarioState };
 
 @Component({
   selector: 'app-mortgage-calculator',
   standalone: true,
-  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe, AmortizationTableComponent, AiAdvisorComponent, VisualAnalysisComponent, AiGoalSeekerComponent],
+  imports: [ReactiveFormsModule, FormsModule, CurrencyPipe, DatePipe, AmortizationTableComponent, AiAdvisorComponent, VisualAnalysisComponent, AiGoalSeekerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mortgage-calculator.component.html',
 })
@@ -21,6 +25,11 @@ export class MortgageCalculatorComponent {
   private fb = inject(FormBuilder);
   private mortgageService = inject(MortgageService);
   private pdfExportService = inject(PdfExportService);
+  private geminiAiService = inject(GeminiAiService);
+
+  // --- Inputs / Outputs for State Management ---
+  state = input.required<ScenarioState>();
+  stateChange = output<ScenarioState>();
 
   // Inputs for theming and layout
   color = input<string>('cyan');
@@ -44,34 +53,18 @@ export class MortgageCalculatorComponent {
   }));
   
   private accentColors: { [key: string]: string } = {
-    cyan: '#22d3ee', // cyan-400
-    fuchsia: '#d946ef', // fuchsia-500
-    yellow: '#eab308', // yellow-500
+    cyan: '#22d3ee',
+    fuchsia: '#d946ef',
+    yellow: '#eab308',
   };
   sliderAccentColor = computed(() => this.accentColors[this.color()] || this.accentColors['cyan']);
 
-  // Calculate default start date: Nov 3rd of current year
-  private getDefaultStartDate(): string {
-    const date = new Date();
-    date.setMonth(10); // November is month 10 (0-indexed)
-    date.setDate(3);
-    return date.toISOString().split('T')[0];
-  }
-
   // Form Group for core mortgage parameters
   mortgageForm = this.fb.group({
-    loanAmount: [234000],
-    interestRate: [3.85],
-    loanTerm: [25], // Amortization period in years
-    loanTermMonths: [0], // Amortization period in months
-    termInYears: [3], // Rate term
-    startDate: [this.getDefaultStartDate()],
-    paymentFrequency: ['accelerated-weekly' as PaymentFrequency],
-    rateType: ['fixed' as 'fixed' | 'variable'],
-    // PITI fields
-    annualPropertyTax: [0],
-    annualHomeInsurance: [0],
-    monthlyPMI: [0],
+    loanAmount: [0], interestRate: [0], loanTerm: [0], loanTermMonths: [0],
+    termInYears: [0], startDate: [''], paymentFrequency: ['monthly' as PaymentFrequency],
+    rateType: ['fixed' as 'fixed' | 'variable'], annualPropertyTax: [0],
+    annualHomeInsurance: [0], monthlyPMI: [0],
   });
 
   // Signals for dynamic extra payments and deferments
@@ -85,23 +78,18 @@ export class MortgageCalculatorComponent {
 
   // Signals for calculation results
   summary = signal<MortgageSummary | null>(null);
-  amortizationSchedule = signal<AmortizationEntry[]>([]); // Term schedule
-  fullAmortizationSchedule = signal<AmortizationEntry[]>([]); // Full schedule
+  amortizationSchedule = signal<AmortizationEntry[]>([]);
+  fullAmortizationSchedule = signal<AmortizationEntry[]>([]);
   baselineSchedule = signal<AmortizationEntry[]>([]);
   
-  // UI state for amortization table view
   amortizationScope = signal<'term' | 'full'>('term');
-  displaySchedule = computed(() => {
-    return this.amortizationScope() === 'term' 
+  displaySchedule = computed(() => this.amortizationScope() === 'term' 
       ? this.amortizationSchedule() 
-      : this.fullAmortizationSchedule();
-  });
+      : this.fullAmortizationSchedule());
 
   yearlyExtraPayments = computed(() => {
     const summary = this.summary();
-    if (!summary?.totalExtraPayments || !summary.extraPaymentsByYear) {
-      return [];
-    }
+    if (!summary?.totalExtraPayments || !summary.extraPaymentsByYear) return [];
     return Object.entries(summary.extraPaymentsByYear)
       .map(([year, amount]) => ({ year: parseInt(year, 10), amount }))
       .sort((a, b) => a.year - b.year);
@@ -115,88 +103,96 @@ export class MortgageCalculatorComponent {
   aiAdvisorComponent = viewChild(AiAdvisorComponent);
   aiGoalSeekerComponent = viewChild(AiGoalSeekerComponent);
 
-  private formValues = toSignal(this.mortgageForm.valueChanges, {
-    initialValue: this.mortgageForm.value
-  });
-
-  paymentFrequencyLabel = computed(() => {
-    const freq = this.formValues().paymentFrequency;
-    switch (freq) {
-      case 'weekly':
-      case 'accelerated-weekly':
-        return 'Weekly';
-      case 'bi-weekly':
-      case 'accelerated-bi-weekly':
-        return 'Bi-Weekly';
-      case 'monthly':
-      default:
-        return 'Monthly';
-    }
-  });
-
   totalLoanTermInYears = computed(() => {
-    const form = this.formValues();
+    const form = this.mortgageForm.value;
     return (form.loanTerm ?? 0) + ((form.loanTermMonths ?? 0) / 12);
   });
 
   baseMonthlyPayment = computed(() => {
-    const formValues = this.formValues();
-    const loanAmount = formValues.loanAmount ?? 0;
-    const interestRate = formValues.interestRate ?? 0;
+    const { loanAmount, interestRate } = this.mortgageForm.value;
     const totalLoanTerm = this.totalLoanTermInYears();
-
-    if (loanAmount <= 0 || interestRate < 0 || totalLoanTerm <= 0) {
-      return 0;
-    }
-    
+    if (!loanAmount || !interestRate || !totalLoanTerm) return 0;
     return this.mortgageService.calculateMonthlyPayment(loanAmount, interestRate / 100, totalLoanTerm);
   });
   
   constructor() {
-    // Recalculate whenever form values or extra payment arrays change
+    // Sync state from parent input to local form/signals
     effect(() => {
-      const form = this.formValues();
-      
+      const s = this.state();
+      this.mortgageForm.patchValue(s.formValues, { emitEvent: false });
+      this.extraMonthlyPayment.set(s.extraMonthlyPayment);
+      this.annualPaymentIncreasePercentage.set(s.annualPaymentIncreasePercentage);
+      this.recurringPayments.set(s.recurringPayments);
+      this.oneTimePayments.set(s.oneTimePayments);
+      this.deferments.set(s.deferments);
+      this.adHocPayments.set(s.adHocPayments);
+      this.rateChanges.set(s.rateChanges);
+    }, { allowSignalWrites: true });
+
+    // When local state changes, emit it to the parent
+    this.mortgageForm.valueChanges.pipe(debounceTime(300), distinctUntilChanged(this.isEqual)).subscribe(formValues => this.emitStateChange());
+    
+    effect(() => {
+      this.extraMonthlyPayment(); this.annualPaymentIncreasePercentage();
+      this.recurringPayments(); this.oneTimePayments(); this.deferments();
+      this.adHocPayments(); this.rateChanges();
+      this.emitStateChange();
+    });
+
+    // Perform calculation when any relevant state changes
+    effect(() => {
+      const form = this.mortgageForm.getRawValue();
       const allRecurringPayments = [...this.recurringPayments()];
-      const extraMonthlyFromSlider = this.extraMonthlyPayment();
-      if (extraMonthlyFromSlider > 0) {
-        allRecurringPayments.push({
-          amount: extraMonthlyFromSlider,
-          frequency: 'monthly'
-        });
+      if (this.extraMonthlyPayment() > 0) {
+        allRecurringPayments.push({ amount: this.extraMonthlyPayment(), frequency: 'monthly' });
       }
 
       const params = {
-        loanAmount: form.loanAmount ?? 0,
-        interestRate: form.interestRate ?? 0,
+        ...form,
         loanTerm: this.totalLoanTermInYears(),
-        termInYears: form.termInYears ?? 0,
-        startDate: form.startDate ?? new Date().toISOString().split('T')[0],
-        paymentFrequency: form.paymentFrequency as PaymentFrequency ?? 'monthly',
-        rateType: form.rateType as 'fixed' | 'variable' ?? 'fixed',
         annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
         recurringPayments: allRecurringPayments,
         oneTimePayments: this.oneTimePayments(),
         deferments: this.deferments(),
         adHocPayments: this.adHocPayments(),
         rateChanges: this.rateChanges(),
-        annualPropertyTax: form.annualPropertyTax ?? 0,
-        annualHomeInsurance: form.annualHomeInsurance ?? 0,
-        monthlyPMI: form.monthlyPMI ?? 0,
       };
 
-      const { schedule, summary, baselineSchedule, fullSchedule } = this.mortgageService.generateScheduleAndSummary(params);
+      const { schedule, summary, baselineSchedule, fullSchedule } = this.mortgageService.generateScheduleAndSummary(params as any);
       this.amortizationSchedule.set(schedule);
       this.fullAmortizationSchedule.set(fullSchedule);
       this.summary.set(summary);
       this.baselineSchedule.set(baselineSchedule);
+      
       this.summaryUpdated.emit({ 
-        summary: summary, 
-        formValues: this.mortgageForm.getRawValue(),
+        summary, 
+        formValues: form,
         extraMonthlyPayment: this.extraMonthlyPayment(),
         recurringPayments: this.recurringPayments()
       });
     }, { allowSignalWrites: true });
+  }
+
+  private isEqual(a: any, b: any): boolean {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
+
+  private emitStateChange() {
+    if (!this.mortgageForm) return;
+    const currentState: ScenarioState = {
+      formValues: this.mortgageForm.getRawValue(),
+      extraMonthlyPayment: this.extraMonthlyPayment(),
+      annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
+      recurringPayments: this.recurringPayments(),
+      oneTimePayments: this.oneTimePayments(),
+      deferments: this.deferments(),
+      adHocPayments: this.adHocPayments(),
+      rateChanges: this.rateChanges(),
+    };
+    // Only emit if there's an actual change from the input to prevent loops
+    if (!this.isEqual(this.state(), currentState)) {
+      this.stateChange.emit(currentState);
+    }
   }
 
   public getChartImages(): ChartImages | null {
@@ -207,234 +203,71 @@ export class MortgageCalculatorComponent {
   }
 
   async saveAsPdf() {
-    const form = this.mortgageForm.getRawValue();
-    const fullParams = {
-        ...form,
-        loanTerm: this.totalLoanTermInYears(), // Pass combined term
-        annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
-        recurringPayments: this.recurringPayments(),
-        oneTimePayments: this.oneTimePayments(),
-        deferments: this.deferments(),
-        adHocPayments: this.adHocPayments(),
-        rateChanges: this.rateChanges(),
-    };
-
+    const fullParams = { ...this.state().formValues, loanTerm: this.totalLoanTermInYears(), ...this.state() };
     const wasHidden = !this.showGraphs();
-    if (wasHidden) {
-        this.showGraphs.set(true);
-        await new Promise(resolve => setTimeout(resolve, 50));
-    }
-
-    const chartImages = this.visualAnalysisComponent()
-      ? this.visualAnalysisComponent()!.getChartImages()
-      : null;
-
-    if (wasHidden) {
-        this.showGraphs.set(false);
-    }
-
+    if (wasHidden) { this.showGraphs.set(true); await new Promise(r => setTimeout(r, 50)); }
+    const chartImages = this.visualAnalysisComponent()?.getChartImages() ?? null;
+    if (wasHidden) { this.showGraphs.set(false); }
     const aiStrategyAdvice = this.aiAdvisorComponent()?.advice() ?? null;
     const aiPaymentFrequencyAdvice = this.aiGoalSeekerComponent()?.suggestion() ?? null;
-
-    this.pdfExportService.exportScenarioAsPdf(
-      `Scenario ${this.scenarioIndex() + 1}`,
-      fullParams,
-      this.summary(),
-      this.displaySchedule(), // Export the currently viewed schedule
-      chartImages,
-      aiStrategyAdvice,
-      aiPaymentFrequencyAdvice
-    );
+    this.pdfExportService.exportScenarioAsPdf(`Scenario ${this.scenarioIndex() + 1}`, fullParams, this.summary(), this.displaySchedule(), chartImages, aiStrategyAdvice, aiPaymentFrequencyAdvice);
   }
 
   exportAsCsv() {
     const schedule = this.displaySchedule();
-    if (schedule.length === 0) {
-      return;
-    }
-
-    const headers = [
-      'Payment Number',
-      'Payment Date',
-      'Payment',
-      'Scheduled Extra Payment',
-      'Ad-Hoc Payment',
-      'Principal',
-      'Interest',
-      'Remaining Balance'
-    ];
-
+    if (schedule.length === 0) return;
+    const headers = ['#','Date','Payment','Scheduled Extra','Ad-Hoc Extra','Principal','Interest','Balance'];
     const csvRows = [headers.join(',')];
-
-    schedule.forEach(entry => {
-      const row = [
-        entry.paymentNumber,
-        entry.paymentDate.toISOString().split('T')[0], // YYYY-MM-DD
-        entry.payment.toFixed(2),
-        entry.scheduledExtraPayment.toFixed(2),
-        entry.adHocPayment.toFixed(2),
-        entry.principal.toFixed(2),
-        entry.interest.toFixed(2),
-        entry.remainingBalance.toFixed(2)
-      ];
-      csvRows.push(row.join(','));
-    });
-
-    const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    schedule.forEach(e => csvRows.push([e.paymentNumber, e.paymentDate.toISOString().split('T')[0], e.payment.toFixed(2), e.scheduledExtraPayment.toFixed(2), e.adHocPayment.toFixed(2), e.principal.toFixed(2), e.interest.toFixed(2), e.remainingBalance.toFixed(2)].join(',')));
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `scenario-${this.scenarioIndex() + 1}-amortization.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.download = `scenario-${this.scenarioIndex() + 1}-amortization.csv`;
     link.click();
-    document.body.removeChild(link);
   }
 
-  // --- Ad-Hoc Payments Management (from Amortization Table) ---
   onAdHocPaymentChange({ paymentNumber, amount }: { paymentNumber: number; amount: number }) {
-    this.adHocPayments.update(payments => {
-      const newPayments = { ...payments };
-      if (amount > 0) {
-        newPayments[paymentNumber] = amount;
-      } else {
-        delete newPayments[paymentNumber];
-      }
-      return newPayments;
-    });
+    this.adHocPayments.update(p => ({ ...p, [paymentNumber]: amount > 0 ? amount : undefined }));
   }
 
-  // --- "What-If" Slider Management ---
-  updateInterestRate(event: Event) {
-    const value = parseFloat((event.target as HTMLInputElement).value);
-    if (!isNaN(value)) {
-        this.mortgageForm.controls.interestRate.setValue(value);
-    }
-  }
-
-  updateExtraMonthlyPayment(event: Event) {
-    const value = parseFloat((event.target as HTMLInputElement).value);
-    this.extraMonthlyPayment.set(value >= 0 ? value : 0);
-  }
-
-  // --- Annual Payment Increase Management ---
-  updateAnnualPaymentIncrease(event: Event) {
-    const percentage = parseFloat((event.target as HTMLInputElement).value);
-    this.annualPaymentIncreasePercentage.set(percentage > 0 ? percentage : 0);
-  }
-
-  // --- Recurring Payments Management ---
-  addRecurringPayment() {
-    this.recurringPayments.update(payments => [...payments, { amount: 100, frequency: 'monthly' }]);
-  }
-
-  removeRecurringPayment(index: number) {
-    this.recurringPayments.update(payments => payments.filter((_, i) => i !== index));
-  }
-
-  updateRecurringPaymentAmount(index: number, event: Event) {
-    const amount = parseFloat((event.target as HTMLInputElement).value);
-    this.recurringPayments.update(payments => {
-      payments[index].amount = amount > 0 ? amount : 0;
-      return [...payments];
-    });
-  }
-
-  updateRecurringPaymentFrequency(index: number, event: Event) {
-    const frequency = (event.target as HTMLSelectElement).value as RecurringPaymentFrequency;
-    this.recurringPayments.update(payments => {
-      payments[index].frequency = frequency;
-      return [...payments];
-    });
-  }
-
-  updateRecurringPaymentStartDate(index: number, event: Event) {
-    const date = (event.target as HTMLInputElement).value;
-    this.recurringPayments.update(payments => {
-      payments[index].startDate = date ? date : undefined;
-      return [...payments];
-    });
-  }
-
-  updateRecurringPaymentEndDate(index: number, event: Event) {
-    const date = (event.target as HTMLInputElement).value;
-    this.recurringPayments.update(payments => {
-      payments[index].endDate = date ? date : undefined;
-      return [...payments];
-    });
-  }
-
-  // --- One-Time Payments Management ---
-  addOneTimePayment() {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    this.oneTimePayments.update(payments => [...payments, { date: nextMonth.toISOString().split('T')[0], amount: 1000 }]);
-  }
-
-  removeOneTimePayment(index: number) {
-    this.oneTimePayments.update(payments => payments.filter((_, i) => i !== index));
-  }
-
-  updateOneTimePaymentDate(index: number, event: Event) {
-    const date = (event.target as HTMLInputElement).value;
-    this.oneTimePayments.update(payments => {
-      payments[index].date = date;
-      return [...payments];
-    });
-  }
-
-  updateOneTimePaymentAmount(index: number, event: Event) {
-    const amount = parseFloat((event.target as HTMLInputElement).value);
-    this.oneTimePayments.update(payments => {
-      payments[index].amount = amount > 0 ? amount : 0;
-      return [...payments];
-    });
-  }
-
-  // --- Deferments Management ---
-  addDeferment() {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 2); // Default 2 months out
-    this.deferments.update(dates => [...dates, nextMonth.toISOString().split('T')[0]]);
-  }
-
-  removeDeferment(index: number) {
-    this.deferments.update(dates => dates.filter((_, i) => i !== index));
-  }
-
-  updateDefermentDate(index: number, event: Event) {
-    const date = (event.target as HTMLInputElement).value;
-    this.deferments.update(dates => {
-      dates[index] = date;
-      return [...dates];
-    });
-  }
-
-  // --- Rate Changes Management ---
-  addRateChange() {
-    const nextYear = new Date();
-    nextYear.setFullYear(nextYear.getFullYear() + 1);
-    this.rateChanges.update(changes => [...changes, { date: nextYear.toISOString().split('T')[0], rate: this.mortgageForm.value.interestRate ?? 5.0 }]);
-  }
-
-  removeRateChange(index: number) {
-    this.rateChanges.update(changes => changes.filter((_, i) => i !== index));
-  }
+  updateInterestRate(event: Event) { this.mortgageForm.controls.interestRate.setValue(parseFloat((event.target as HTMLInputElement).value) || 0); }
+  updateExtraMonthlyPayment(event: Event) { this.extraMonthlyPayment.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
+  updateAnnualPaymentIncrease(event: Event) { this.annualPaymentIncreasePercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   
-  updateRateChangeDate(index: number, event: Event) {
-    const date = (event.target as HTMLInputElement).value;
-    this.rateChanges.update(changes => {
-      changes[index].date = date;
-      return [...changes];
+  addRecurringPayment() { this.recurringPayments.update(p => [...p, { amount: 100, frequency: 'monthly' }]); }
+  removeRecurringPayment(i: number) { this.recurringPayments.update(p => p.filter((_, idx) => i !== idx)); }
+  updateRecurringPayment<K extends keyof RecurringPayment>(i: number, field: K, event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.recurringPayments.update(p => {
+      const newP = [...p];
+      newP[i] = { ...newP[i], [field]: field === 'amount' ? parseFloat(value) || 0 : value };
+      return newP;
     });
   }
 
-  updateRateChangeRate(index: number, event: Event) {
-    const rate = parseFloat((event.target as HTMLInputElement).value);
-    this.rateChanges.update(changes => {
-      changes[index].rate = rate > 0 ? rate : 0;
-      return [...changes];
+  addOneTimePayment() { const d = new Date(); d.setMonth(d.getMonth() + 1); this.oneTimePayments.update(p => [...p, { date: d.toISOString().split('T')[0], amount: 1000 }]); }
+  removeOneTimePayment(i: number) { this.oneTimePayments.update(p => p.filter((_, idx) => i !== idx)); }
+  updateOneTimePayment(i: number, field: 'date' | 'amount', event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.oneTimePayments.update(p => {
+      const newP = [...p];
+      newP[i] = { ...newP[i], [field]: field === 'amount' ? parseFloat(value) || 0 : value };
+      return newP;
+    });
+  }
+
+  addDeferment() { const d = new Date(); d.setMonth(d.getMonth() + 2); this.deferments.update(dts => [...dts, d.toISOString().split('T')[0]]); }
+  removeDeferment(i: number) { this.deferments.update(dts => dts.filter((_, idx) => i !== idx)); }
+  updateDefermentDate(i: number, event: Event) { this.deferments.update(dts => { const n = [...dts]; n[i] = (event.target as HTMLInputElement).value; return n; }); }
+
+  addRateChange() { const d = new Date(); d.setFullYear(d.getFullYear() + 1); this.rateChanges.update(c => [...c, { date: d.toISOString().split('T')[0], rate: this.mortgageForm.value.interestRate ?? 5.0 }]); }
+  removeRateChange(i: number) { this.rateChanges.update(c => c.filter((_, idx) => i !== idx)); }
+  updateRateChange(i: number, field: 'date' | 'rate', event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.rateChanges.update(c => {
+      const newC = [...c];
+      newC[i] = { ...newC[i], [field]: field === 'rate' ? parseFloat(value) || 0 : value };
+      return newC;
     });
   }
 }

@@ -1,0 +1,94 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-4xl mx-auto">
+    
+  <!-- Form Section -->
+  <section>
+    <form [formGroup]="helocForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+      <div>
+        <label for="homeValue" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+          <span>Current Home Value</span>
+          <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The estimated current market value of your property.</div></div>
+        </label>
+        <input type="number" id="homeValue" formControlName="homeValue" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+      </div>
+       <div>
+        <label for="mortgageBalance" class="block text-sm font-medium text-gray-300">Outstanding Mortgage Balance</label>
+        <input type="number" id="mortgageBalance" formControlName="mortgageBalance" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+      </div>
+      <div>
+        <label for="ltvRatio" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+          <span>Loan-to-Value (LTV) Ratio (%)</span>
+          <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The maximum percentage of your home's value that a lender will allow you to borrow against. This is typically around 85%.</div></div>
+        </label>
+        <input type="number" id="ltvRatio" formControlName="ltvRatio" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+      </div>
+      <div>
+        <label for="amountToDraw" class="block text-sm font-medium text-gray-300">Amount to Draw</label>
+        <input type="number" id="amountToDraw" formControlName="amountToDraw" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+        @if(helocForm.get('amountToDraw')?.hasError('max')) {
+            <p class="text-xs text-red-400 mt-1">Cannot exceed max available credit of {{ maxHelocAmount() | currency }}</p>
+        }
+      </div>
+      <div>
+        <label for="interestRate" class="block text-sm font-medium text-gray-300">HELOC Interest Rate (%)</label>
+        <input type="number" id="interestRate" formControlName="interestRate" step="0.01" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label for="drawPeriod" class="block text-sm font-medium text-gray-300">Draw Period (Yrs)</label>
+            <input type="number" id="drawPeriod" formControlName="drawPeriod" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+        </div>
+        <div>
+            <label for="repaymentPeriod" class="block text-sm font-medium text-gray-300">Repayment (Yrs)</label>
+            <input type="number" id="repaymentPeriod" formControlName="repaymentPeriod" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md text-white p-2 focus:ring-teal-500 focus:border-teal-500">
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+    <h3 class="text-2xl font-semibold text-center mb-6 text-gray-200">HELOC Summary</h3>
+    @if(helocForm.valid) {
+      <div class="bg-gray-900/50 rounded-lg p-6 space-y-6">
+        <!-- Main Result -->
+        <div class="text-center">
+          <p class="text-lg text-gray-300">Maximum Available Credit</p>
+          <p class="text-5xl font-extrabold text-teal-400 tracking-tight my-2">{{ maxHelocAmount() | currency:'USD':'symbol':'1.0-0' }}</p>
+          <p class="text-sm text-gray-400">Based on your home value, mortgage balance, and LTV ratio.</p>
+        </div>
+        
+        <!-- Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-700/50">
+          <!-- Draw Period -->
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="font-semibold text-white mb-2">Draw Period ({{ helocForm.value.drawPeriod }} years)</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ interestOnlyPayment() | currency }} / month</p>
+            <p class="text-xs text-gray-500 mt-2">This is an <strong class="text-gray-400">interest-only</strong> payment on the amount you've drawn.</p>
+          </div>
+          <!-- Repayment Period -->
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="font-semibold text-white mb-2">Repayment Period ({{ helocForm.value.repaymentPeriod }} years)</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ repaymentPayment() | currency }} / month</p>
+            <p class="text-xs text-gray-500 mt-2">This is a <strong class="text-gray-400">principal + interest</strong> payment to pay off the balance.</p>
+          </div>
+        </div>
+
+        <div class="text-center bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="font-semibold text-white mb-2">Total Interest Cost</h4>
+            <p class="text-2xl font-bold text-yellow-400">{{ totalLifetimeInterest() | currency:'USD':'symbol':'1.0-0' }}</p>
+            <p class="text-sm text-gray-400 mt-2">
+                Over the full {{ (helocForm.value.drawPeriod ?? 0) + (helocForm.value.repaymentPeriod ?? 0) }}-year HELOC term.
+            </p>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 pt-4">
+          <p><strong>Disclaimer:</strong> This is an estimate for informational purposes. HELOCs often have variable interest rates, which can change your payment amount. Consult your lender for precise figures and terms.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">Please fill out all fields to calculate your HELOC estimate.</p>
+      </div>
+    }
+  </section>
+</div>

@@ -6,114 +6,81 @@
       <h2 class="text-2xl font-semibold text-yellow-400">Refinance Analysis</h2>
       <div class="flex items-center gap-2">
         <button (click)="showVisuals.set(!showVisuals())" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-fuchsia-400">
-                <path d="M1 1.5a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-17ZM2 10v7.5h7.5V10H2Z M10.5 2v7.5H18V2h-7.5Z" />
-                <path d="m3.857 12.857 2.571 2.572a.5.5 0 0 0 .708-.708L4.565 12.15a.5.5 0 0 0-.708.707Z" />
-                <path d="m11.15 8.16 2.57 2.571a.5.5 0 0 0 .708-.707L11.858 7.45a.5.5 0 0 0-.707.708Z" />
-                <path d="m11.85 4.143-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.707Z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-fuchsia-400"><path d="M1 1.5a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-17ZM2 10v7.5h7.5V10H2Z M10.5 2v7.5H18V2h-7.5Z" /><path d="m3.857 12.857 2.571 2.572a.5.5 0 0 0 .708-.708L4.565 12.15a.5.5 0 0 0-.708.707Z" /><path d="m11.15 8.16 2.57 2.571a.5.5 0 0 0 .708-.707L11.858 7.45a.5.5 0 0 0-.707.708Z" /><path d="m11.85 4.143-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.707Z" /></svg>
             {{ showVisuals() ? 'Hide' : 'Show' }} Visuals
         </button>
         <button (click)="saveAsPdf()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0 -16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
             Save as PDF
         </button>
       </div>
     </div>
-    <div class="bg-gray-900/50 rounded-lg p-6 max-w-4xl mx-auto">
+    <div class="bg-gray-900/50 rounded-lg p-6 max-w-4xl mx-auto space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div>
-                <label for="closingCosts" class="block text-sm font-medium text-gray-300">Refinance Closing Costs ($)</label>
+                <label for="closingCosts" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+                  <span>Total Closing Costs ($)</span>
+                  <div class="group relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                    <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Fees for the new loan plus any penalty for breaking your current one.</div>
+                  </div>
+                </label>
                 <input type="number" id="closingCosts" [formControl]="closingCostsControl" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-yellow-500 focus:border-yellow-500">
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-center">
-                <div>
-                    <p class="text-sm text-gray-400">Payment Savings</p>
-                    <p class="font-bold text-2xl" [class.text-green-400]="monthlySavings() > 0" [class.text-red-400]="monthlySavings() < 0">
-                        {{ monthlySavings() | currency:'USD':'symbol':'1.2-2' }}
-                    </p>
-                    <p class="text-xs text-gray-500">Monthly Equivalent</p>
-                </div>
-                 <div>
-                    <p class="text-sm text-gray-400">Breakeven Point</p>
-                    <p class="font-bold text-2xl text-white">
-                        @if(breakevenMonths() > 0) {
-                           {{ breakevenMonths() | number:'1.0-1' }} <span class="text-base font-normal">months</span>
-                        } @else {
-                            --
-                        }
-                    </p>
-                </div>
-                 <div>
-                    <p class="text-sm text-gray-400">Lifetime Interest Saved</p>
-                    <p class="font-bold text-2xl" [class.text-green-400]="totalInterestSavings() > 0" [class.text-red-400]="totalInterestSavings() < 0">
-                        {{ totalInterestSavings() | currency:'USD':'symbol':'1.0-0' }}
-                    </p>
-                </div>
+                <div><p class="text-sm text-gray-400">Payment Savings</p><p class="font-bold text-2xl" [class.text-green-400]="monthlySavings() > 0" [class.text-red-400]="monthlySavings() < 0">{{ monthlySavings() | currency:'USD':'symbol':'1.2-2' }}</p><p class="text-xs text-gray-500">Monthly Equivalent</p></div>
+                <div><p class="text-sm text-gray-400">Breakeven Point</p><p class="font-bold text-2xl text-white">@if(breakevenMonths() > 0){ {{ breakevenMonths() | number:'1.0-1' }} <span class="text-base font-normal">months</span> }@else{--}</p></div>
+                <div><p class="text-sm text-gray-400">Net Interest Saved</p><p class="font-bold text-2xl" [class.text-green-400]="totalInterestSavings() > 0" [class.text-red-400]="totalInterestSavings() < 0">{{ totalInterestSavings() | currency:'USD':'symbol':'1.0-0' }}</p></div>
             </div>
         </div>
 
-        <div class="mt-6 pt-6 border-t border-gray-700/50">
-            <h3 class="text-lg font-semibold text-center mb-4 text-gray-200">Loan Comparison Breakdown</h3>
-            <div class="grid grid-cols-3 gap-4 text-center">
-                <!-- Headers -->
-                <div class="font-medium text-sm text-gray-400"></div>
-                <div class="font-medium text-sm text-cyan-400">Current Loan</div>
-                <div class="font-medium text-sm text-fuchsia-400">New Loan</div>
-
-                <!-- Periodic Payment -->
-                <div class="font-medium text-sm text-gray-400 text-right pr-2">Periodic Payment</div>
-                <div>
-                  <div class="font-semibold text-white">{{ currentPeriodicPayment() | currency }}</div>
-                  <div class="text-xs text-gray-500">{{ currentPaymentFrequencyLabel() }}</div>
+        <!-- Penalty Calculator -->
+        <div class="bg-gray-800/50 rounded-lg border border-gray-700">
+            <button type="button" (click)="showPenaltyCalc.set(!showPenaltyCalc())" class="w-full flex justify-between items-center p-3 text-left font-semibold text-gray-200">
+                <span>Calculate Break Penalty</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 transition-transform" [class.rotate-180]="!showPenaltyCalc()"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+            </button>
+            @if(showPenaltyCalc()) {
+                <div class="p-4 border-t border-gray-700 space-y-4">
+                    <form [formGroup]="penaltyForm" class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs text-gray-400">Months in Term Remaining</label><input type="number" formControlName="remainingMonths" class="mt-1 w-full bg-gray-700 p-1 rounded"></div>
+                        <div><label class="block text-xs text-gray-400">Lender's Posted Rate (%)</label><input type="number" step="0.01" formControlName="postedRate" class="mt-1 w-full bg-gray-700 p-1 rounded"></div>
+                    </form>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-gray-900/40 p-2 rounded"><h5 class="text-xs text-gray-400">Three Months' Interest</h5><p class="font-bold">{{ threeMonthPenalty() | currency }}</p></div>
+                        <div class="bg-gray-900/40 p-2 rounded"><h5 class="text-xs text-gray-400">IRD Penalty</h5><p class="font-bold">{{ irdPenalty() | currency }}</p></div>
+                        <div class="bg-indigo-900/40 p-2 rounded"><h5 class="text-xs text-indigo-300">Final Penalty (Higher Of)</h5><p class="font-bold text-indigo-300">{{ finalPenalty() | currency }}</p></div>
+                    </div>
                 </div>
-                <div>
-                  <div class="font-semibold text-white">{{ newPeriodicPayment() | currency }}</div>
-                  <div class="text-xs text-gray-500">{{ newPaymentFrequencyLabel() }}</div>
-                </div>
-
-                <!-- Amortization Row -->
-                <div class="font-medium text-sm text-gray-400 text-right pr-2">Amortization</div>
-                <div class="font-semibold text-white">{{ currentLoanAmortization() }}</div>
-                <div class="font-semibold text-white">{{ newLoanAmortization() }}</div>
-
-                <!-- Term Row -->
-                <div class="font-medium text-sm text-gray-400 text-right pr-2">Term</div>
-                <div class="font-semibold text-white">{{ currentLoanTerm() }}</div>
-                <div class="font-semibold text-white">{{ newLoanTerm() }}</div>
-            </div>
+            }
         </div>
+
+        <div class="pt-6 border-t border-gray-700/50"><h3 class="text-lg font-semibold text-center mb-4 text-gray-200">Loan Comparison Breakdown</h3><div class="grid grid-cols-3 gap-4 text-center"><div class="font-medium text-sm text-gray-400"></div><div class="font-medium text-sm text-cyan-400">Current Loan</div><div class="font-medium text-sm text-fuchsia-400">New Loan</div><div class="font-medium text-sm text-gray-400 text-right pr-2">Periodic Payment</div><div><div class="font-semibold text-white">{{ currentPeriodicPayment() | currency }}</div><div class="text-xs text-gray-500">{{ currentPaymentFrequencyLabel() }}</div></div><div><div class="font-semibold text-white">{{ newPeriodicPayment() | currency }}</div><div class="text-xs text-gray-500">{{ newPaymentFrequencyLabel() }}</div></div><div class="font-medium text-sm text-gray-400 text-right pr-2">Amortization</div><div class="font-semibold text-white">{{ currentLoanAmortization() }}</div><div class="font-semibold text-white">{{ newLoanAmortization() }}</div><div class="font-medium text-sm text-gray-400 text-right pr-2">Term</div><div class="font-semibold text-white">{{ currentLoanTerm() }}</div><div class="font-semibold text-white">{{ newLoanTerm() }}</div></div></div>
     </div>
   </section>
 
-  <!-- Loan Comparison -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="space-y-4">
         <h2 class="text-2xl font-semibold text-cyan-400">Current Loan</h2>
         <app-mortgage-calculator
             #currentLoanCalculator
-            [color]="'cyan'" 
-            [scenarioIndex]="0" 
-            [scenarioCount]="2"
-            [hideHeader]="true" 
-            [graphsVisible]="showVisuals()"
-            (summaryUpdated)="updateCurrentLoan($event)"
+            [state]="currentLoanState()"
+            (stateChange)="currentLoanState.set($event)"
+            (summaryUpdated)="updateCurrentLoanSummary($event)"
+            [color]="'cyan'" [scenarioIndex]="0" [scenarioCount]="2"
+            [hideHeader]="true" [graphsVisible]="showVisuals()"
         />
     </div>
     <div class="space-y-4">
         <h2 class="text-2xl font-semibold text-fuchsia-400">New Loan</h2>
         <app-mortgage-calculator
             #newLoanCalculator
-            [color]="'fuchsia'" 
-            [scenarioIndex]="1"
-            [scenarioCount]="2"
-            [hideHeader]="true"
-            [graphsVisible]="showVisuals()"
-            (summaryUpdated)="updateNewLoan($event)"
+            [state]="newLoanState()"
+            (stateChange)="newLoanState.set($event)"
+            (summaryUpdated)="updateNewLoanSummary($event)"
+            [color]="'fuchsia'" [scenarioIndex]="1" [scenarioCount]="2"
+            [hideHeader]="true" [graphsVisible]="showVisuals()"
         />
     </div>
   </div>
-
 </div>

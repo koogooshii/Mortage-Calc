@@ -1,0 +1,127 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-6xl mx-auto">
+  
+  <!-- Tabs -->
+  <div class="border-b border-gray-700">
+    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+      <button (click)="setView('affordability')" [class.border-blue-500]="viewMode() === 'affordability'" [class.text-blue-400]="viewMode() === 'affordability'" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-400 hover:border-gray-500 hover:text-gray-300">Affordability</button>
+      <button (click)="setView('stressTest')" [class.border-blue-500]="viewMode() === 'stressTest'" [class.text-blue-400]="viewMode() === 'stressTest'" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-400 hover:border-gray-500 hover:text-gray-300">Stress Test</button>
+      <button (click)="setView('closingCosts')" [class.border-blue-500]="viewMode() === 'closingCosts'" [class.text-blue-400]="viewMode() === 'closingCosts'" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-400 hover:border-gray-500 hover:text-gray-300">Closing Costs</button>
+      <button (click)="setView('hbp')" [class.border-blue-500]="viewMode() === 'hbp'" [class.text-blue-400]="viewMode() === 'hbp'" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-400 hover:border-gray-500 hover:text-gray-300">RRSP HBP</button>
+    </nav>
+  </div>
+
+  <form [formGroup]="plannerForm">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Form Section -->
+      <section class="lg:col-span-1">
+        <h3 class="text-xl font-semibold text-gray-200 mb-4">Your Financial Profile</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Gross Annual Income</label>
+            <input type="number" formControlName="annualIncome" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Total Monthly Debts</label>
+            <input type="number" formControlName="monthlyDebts" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Down Payment</label>
+            <input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Mortgage Interest Rate (%)</label>
+            <input type="number" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Amortization Period (Years)</label>
+            <input type="number" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Province</label>
+            <select formControlName="province" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+                <option value="ON">Ontario</option>
+                <option value="BC">British Columbia</option>
+                <option value="QC">Quebec</option>
+                <option value="AB">Alberta</option>
+                <option value="MB">Manitoba</option>
+                <option value="SK">Saskatchewan</option>
+                <option value="NS">Nova Scotia</option>
+                <option value="NB">New Brunswick</option>
+                <option value="PE">Prince Edward Island</option>
+                <option value="NL">Newfoundland & Labrador</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <section class="lg:col-span-2">
+        @switch (viewMode()) {
+          @case ('affordability') {
+              <div class="bg-gray-900/50 rounded-lg p-6 text-center border-t-4 border-blue-500">
+                  <h4 class="text-xl font-bold text-blue-400">Affordability Estimate</h4>
+                  <p class="text-xs text-gray-400 mb-4">Based on GDS/TDS ratios of 39%/44%</p>
+                  <div class="my-4">
+                      <p class="text-lg text-gray-300">Max Affordable Home Price</p>
+                      <p class="text-5xl font-extrabold text-white tracking-tight">{{ affordabilityResult().maxHomePrice | currency:'USD':'symbol':'1.0-0' }}</p>
+                  </div>
+                  <div class="space-y-3 text-sm text-left">
+                      <div class="flex justify-between items-center bg-gray-800/50 p-2 rounded-md"><span class="text-gray-400">Max Loan Amount:</span><span class="font-mono">{{ affordabilityResult().maxLoanAmount | currency:'USD':'symbol':'1.0-0' }}</span></div>
+                      <div class="flex justify-between items-center bg-gray-800/50 p-2 rounded-md"><span class="text-gray-400">Estimated Monthly P&I:</span><span class="font-mono">{{ affordabilityResult().maxMonthlyPITI | currency }}</span></div>
+                  </div>
+              </div>
+          }
+          @case ('stressTest') {
+              <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-red-500 space-y-4">
+                  <h4 class="text-xl font-bold text-red-400 text-center">Mortgage Stress Test</h4>
+                  <div class="text-center">
+                      <p class="text-lg text-gray-300">Your Qualifying Rate is</p>
+                      <p class="text-4xl font-extrabold text-white tracking-tight my-1">{{ qualifyingRate() | number:'1.2-2' }}%</p>
+                      <p class="text-sm text-gray-400">This is the higher of your rate + 2% or the 5.25% benchmark.</p>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-700">
+                      <div class="bg-gray-800/50 p-3 rounded">
+                          <h5 class="font-semibold text-white">Payment at Contract Rate</h5>
+                          <p class="text-xl font-bold text-gray-300">{{ affordabilityResult().maxMonthlyPITI | currency }}</p>
+                      </div>
+                      <div class="bg-gray-800/50 p-3 rounded">
+                          <h5 class="font-semibold text-white">Payment at Qualifying Rate</h5>
+                          <p class="text-xl font-bold text-red-400">{{ paymentAtQualifyingRate() | currency }}</p>
+                      </div>
+                  </div>
+                  <p class="text-center text-gray-300">You must prove you can afford the higher qualifying payment to be approved for your loan.</p>
+              </div>
+          }
+          @case ('closingCosts') {
+              <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-purple-500">
+                  <h4 class="text-xl font-bold text-purple-400 text-center mb-4">Estimated Closing Costs</h4>
+                  <!-- LTT and CMHC results would go here -->
+                  <p class="text-center text-gray-400">Land Transfer Tax and CMHC premium calculations will be displayed here based on your affordable home price.</p>
+              </div>
+          }
+          @case ('hbp') {
+              <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-pink-500">
+                  <h4 class="text-xl font-bold text-pink-400 text-center mb-4">RRSP Home Buyers' Plan Impact</h4>
+                  <div class="space-y-4">
+                      <div>
+                          <label class="block text-sm font-medium text-gray-300">HBP Withdrawal Amount (Max {{HBP_LIMIT | currency}})</label>
+                          <input type="number" formControlName="withdrawalAmount" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+                      </div>
+                      <div class="grid grid-cols-2 gap-4 text-center">
+                          <div class="bg-gray-800/50 p-3 rounded">
+                              <h5 class="text-sm text-gray-300">Required Annual Repayment</h5>
+                              <p class="text-2xl font-bold text-white">{{ hbpRepayment() | currency }}</p>
+                          </div>
+                          <div class="bg-gray-800/50 p-3 rounded">
+                              <h5 class="text-sm text-gray-300">Tax on Missed Payment</h5>
+                              <p class="text-2xl font-bold text-red-400">{{ taxOnMissedHbpPayment() | currency }}</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          }
+        }
+      </section>
+    </div>
+  </form>
+</div>

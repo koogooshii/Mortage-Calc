@@ -8,8 +8,7 @@ declare const Chart: any;
 @Component({
   selector: 'app-loan-history-chart',
   standalone: true,
-  // FIX: Inlined template to fix missing HTML file issue.
-  template: `<canvas #historyChart></canvas>`,
+  templateUrl: './loan-history-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoanHistoryChartComponent implements AfterViewInit, OnChanges, OnDestroy {

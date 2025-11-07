@@ -172,6 +172,11 @@ export class MortgageService {
     const sortedRateChanges = [...rateChanges].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     let rateChangeIndex = 0;
 
+    const sortedOneTimePayments = [...oneTimePayments]
+      .filter(p => p.date && p.amount > 0)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let oneTimePaymentIndex = 0;
+
     let annualInterestRate = interestRate / 100;
     const paymentsPerYear = this.getPaymentsPerYear(paymentFrequency);
 
@@ -309,15 +314,19 @@ export class MortgageService {
         nextRecurringPaymentDates[index] = nextDate;
       });
 
-      // Calculate one-time extra payments
-      oneTimePayments.forEach(p => {
-        if (!p.date || p.amount <= 0) return;
-        const oneTimeDate = new Date(p.date);
-        const paymentDate = new Date(oneTimeDate.valueOf() + oneTimeDate.getTimezoneOffset() * 60 * 1000);
-        if (paymentDate > previousDate && paymentDate <= currentDate) {
-          scheduledExtraPayment += p.amount;
-        }
-      });
+      // Calculate one-time extra payments (optimized)
+      while (
+        oneTimePaymentIndex < sortedOneTimePayments.length &&
+        new Date(new Date(sortedOneTimePayments[oneTimePaymentIndex].date).valueOf() + new Date(sortedOneTimePayments[oneTimePaymentIndex].date).getTimezoneOffset() * 60 * 1000) <= currentDate
+      ) {
+          const p = sortedOneTimePayments[oneTimePaymentIndex];
+          const oneTimeDate = new Date(p.date);
+          const paymentDate = new Date(oneTimeDate.valueOf() + oneTimeDate.getTimezoneOffset() * 60 * 1000);
+          if (paymentDate > previousDate) {
+              scheduledExtraPayment += p.amount;
+          }
+          oneTimePaymentIndex++;
+      }
       
       const adHocPayment = adHocPayments[paymentNumber] || 0;
       const extraPrincipalPaid = scheduledExtraPayment + adHocPayment;

@@ -5,11 +5,11 @@
     <h2 class="text-2xl font-semibold text-fuchsia-400">Loan History & Projection</h2>
     <div class="flex items-center gap-2">
       <button (click)="exportAsCsv()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0 -16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
         Export CSV
       </button>
       <button (click)="saveAsPdf()" class="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0 -16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
         Save as PDF
       </button>
     </div>
@@ -20,11 +20,23 @@
     <h3 class="text-xl font-semibold text-gray-200 mb-4">Original Loan Details</h3>
     <form [formGroup]="originalLoanForm" (ngSubmit)="recalculateHistory()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-gray-900/50 p-4 rounded-lg">
       <div>
-        <label class="block text-sm font-medium text-gray-300">Purchase Price ($)</label>
+        <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Purchase Price ($)</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The original purchase price of the property.</div>
+            </div>
+        </label>
         <input type="number" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-300">Down Payment ($)</label>
+        <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Down Payment ($)</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The initial cash down payment made at the time of purchase.</div>
+            </div>
+        </label>
         <input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
       </div>
        <div>
@@ -36,11 +48,23 @@
         <input type="date" formControlName="startDate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-300">Amortization (Yrs)</label>
+        <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Amortization (Yrs)</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total number of years the original loan was scheduled to be paid off over (e.g., 25 years).</div>
+            </div>
+        </label>
         <input type="number" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-300">Term (Yrs)</label>
+        <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Term (Yrs)</span>
+            <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The length of the original mortgage contract before the first renewal (e.g., 5 years).</div>
+            </div>
+        </label>
         <input type="number" formControlName="term" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2">
       </div>
       <div>
@@ -94,11 +118,23 @@
   <section>
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-xl font-semibold text-gray-200">Loan Events Timeline</h3>
-      <div class="flex items-center gap-2">
-        <button (click)="openEventModal('refinance')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md">+ Refinance</button>
-        <button (click)="openEventModal('renewal')" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-md">+ Renewal</button>
-        <button (click)="openEventModal('lumpSum')" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md">+ Lump Sum</button>
-        <button (click)="openEventModal('missedPayment')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-md">+ Skip Payment</button>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="group relative">
+            <button (click)="openEventModal('refinance')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md">+ Refinance</button>
+            <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Replace your existing mortgage with a new one, typically for a lower rate or to cash out equity. This resets your amortization.</div>
+        </div>
+         <div class="group relative">
+            <button (click)="openEventModal('renewal')" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-md">+ Renewal</button>
+            <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Sign a new contract (term) with your lender at the end of your previous term, often with a new interest rate.</div>
+        </div>
+         <div class="group relative">
+            <button (click)="openEventModal('lumpSum')" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md">+ Lump Sum</button>
+            <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">An extra, one-time payment made directly against your loan principal to pay it down faster.</div>
+        </div>
+         <div class="group relative">
+            <button (click)="openEventModal('missedPayment')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-md">+ Skip Payment</button>
+            <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Defer a scheduled payment. The interest for that period is added to your loan balance.</div>
+        </div>
       </div>
     </div>
     

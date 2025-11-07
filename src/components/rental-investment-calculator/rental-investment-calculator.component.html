@@ -1,0 +1,129 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-5xl mx-auto">
+  
+  <!-- Results Section -->
+  <section>
+    <h2 class="text-2xl font-semibold text-center mb-6 text-lime-400">Investment Performance Summary</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Key Metrics -->
+      <div class="lg:col-span-1 space-y-4">
+        <div class="bg-gray-900/50 rounded-lg p-4 text-center border-t-4 border-lime-500">
+          <p class="text-sm text-gray-400 flex items-center justify-center gap-1">
+            <span>Monthly Cash Flow</span>
+            <span class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Your pre-tax profit each month after all expenses and mortgage payments are paid.</span>
+            </span>
+          </p>
+          <p class="text-4xl font-extrabold my-1" [class.text-green-400]="monthlyCashFlow() >= 0" [class.text-red-400]="monthlyCashFlow() < 0">
+            {{ monthlyCashFlow() | currency:'USD':'symbol':'1.2-2' }}
+          </p>
+          <p class="text-xs text-gray-500">After all expenses & mortgage</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-900/50 rounded-lg p-3 text-center">
+            <p class="text-sm text-gray-400 flex items-center justify-center gap-1">
+                <span>Cap Rate</span>
+                <span class="group relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                    <span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Measures a property's profitability before debt. Calculated as Net Operating Income / Price. A higher cap rate is generally better.</span>
+                </span>
+            </p>
+            <p class="text-2xl font-bold text-white">{{ capRate() | percent:'1.2-2' }}</p>
+          </div>
+          <div class="bg-gray-900/50 rounded-lg p-3 text-center">
+            <p class="text-sm text-gray-400 flex items-center justify-center gap-1">
+                <span>Cash-on-Cash Return</span>
+                 <span class="group relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                    <span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Measures the annual return on the actual cash invested. Calculated as Annual Cash Flow / Total Cash Invested.</span>
+                </span>
+            </p>
+            <p class="text-2xl font-bold text-white">{{ cashOnCashReturn() | percent:'1.2-2' }}</p>
+          </div>
+        </div>
+         <div class="bg-gray-900/50 rounded-lg p-3 text-center">
+            <p class="text-sm text-gray-400 flex items-center justify-center gap-1">
+                <span>Total Investment</span>
+                <span class="group relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                    <span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total cash you need to close the deal, including down payment, closing costs, and initial repairs.</span>
+                </span>
+            </p>
+            <p class="text-2xl font-bold text-white">{{ totalInvestment() | currency:'USD':'symbol':'1.0-0' }}</p>
+          </div>
+      </div>
+      <!-- Chart and Breakdown -->
+      <div class="lg:col-span-2 bg-gray-900/50 p-4 rounded-lg">
+        <h4 class="font-semibold text-gray-200 text-center mb-2">Monthly Income vs. Expenses</h4>
+        <div class="relative h-24">
+            <canvas #summaryChart></canvas>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-700/50 text-sm space-y-2">
+            <div class="flex justify-between items-center"><span class="text-gray-400">Gross Monthly Income:</span><span class="font-mono">{{ effectiveGrossIncome() / 12 | currency }}</span></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">Total Monthly Expenses:</span><span class="font-mono text-red-400">- {{ (totalOperatingExpenses() / 12) | currency }}</span></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">Monthly P&I Payment:</span><span class="font-mono text-yellow-400">- {{ monthlyPI() | currency }}</span></div>
+            <div class="flex justify-between items-center font-bold border-t border-gray-600 mt-2 pt-2"><span class="text-white">Net Monthly Cash Flow:</span><span class="font-mono" [class.text-green-400]="monthlyCashFlow() >= 0" [class.text-red-400]="monthlyCashFlow() < 0">{{ monthlyCashFlow() | currency }}</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inputs Form -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+     <h2 class="text-2xl font-semibold text-center mb-6 text-gray-200">Property Assumptions</h2>
+    <form [formGroup]="investmentForm" class="space-y-4">
+      <!-- Property & Loan Details -->
+      <div class="bg-gray-900/50 rounded-lg border border-gray-700">
+        <button type="button" (click)="isPropertyOpen.set(!isPropertyOpen())" class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-white">
+          <span>Property & Loan Details</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 transition-transform" [class.rotate-180]="!isPropertyOpen()"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+        </button>
+        @if (isPropertyOpen()) {
+          <div class="p-4 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Purchase Price</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total price you are paying for the property.</span></span></label><input type="number" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Down Payment</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The amount of cash you will pay upfront toward the purchase price.</span></span></label><input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Loan Amount</label><input type="number" [value]="loanAmount()" disabled class="mt-1 block w-full bg-gray-800 rounded-md p-2 text-gray-400"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Interest Rate (%)</label><input type="number" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Loan Term (Years)</label><input type="number" formControlName="loanTerm" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Closing Costs</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Fees paid at closing, like legal fees, title insurance, and appraisal fees. Typically 2-5% of the purchase price.</span></span></label><input type="number" formControlName="closingCosts" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Initial Repairs</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Upfront cost for renovations or repairs needed before the property is ready to rent.</span></span></label><input type="number" formControlName="initialRepairs" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+          </div>
+        }
+      </div>
+
+      <!-- Income -->
+      <div class="bg-gray-900/50 rounded-lg border border-gray-700">
+        <button type="button" (click)="isIncomeOpen.set(!isIncomeOpen())" class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-white">
+          <span>Income</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 transition-transform" [class.rotate-180]="!isIncomeOpen()"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+        </button>
+        @if (isIncomeOpen()) {
+          <div class="p-4 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Monthly Rent</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total rent you expect to collect each month.</span></span></label><input type="number" formControlName="monthlyRent" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Other Monthly Income</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Additional income from sources like parking fees, laundry, or storage units.</span></span></label><input type="number" formControlName="otherMonthlyIncome" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+          </div>
+        }
+      </div>
+      
+      <!-- Operating Expenses -->
+      <div class="bg-gray-900/50 rounded-lg border border-gray-700">
+        <button type="button" (click)="isExpensesOpen.set(!isExpensesOpen())" class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-white">
+          <span>Operating Expenses</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 transition-transform" [class.rotate-180]="!isExpensesOpen()"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+        </button>
+        @if (isExpensesOpen()) {
+          <div class="p-4 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Annual Property Tax</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Yearly tax paid to your municipality, based on the property's assessed value.</span></span></label><input type="number" formControlName="propertyTax" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Annual Home Insurance</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Yearly cost for your landlord or homeowner's insurance policy.</span></span></label><input type="number" formControlName="homeInsurance" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Monthly HOA</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Homeowners' Association fees, if applicable.</span></span></label><input type="number" formControlName="monthlyHOA" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Vacancy Rate (%)</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The percentage of the year you expect the property to be empty between tenants. This is calculated as a loss against your gross annual income.</span></span></label><input type="number" formControlName="vacancyRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Maintenance Rate (%)</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Estimated percentage of gross income set aside for routine maintenance and repairs (e.g., plumbing, painting).</span></span></label><input type="number" formControlName="maintenanceRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Management Rate (%)</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The fee paid to a property management company, calculated as a percentage of collected rent (effective gross income).</span></span></label><input type="number" formControlName="managementRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+            <div><label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Other Monthly Expenses</span><span class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><span class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Any other recurring monthly costs not listed above, such as utilities you pay for, pest control, etc.</span></span></label><input type="number" formControlName="otherMonthlyExpenses" class="mt-1 block w-full bg-gray-700 rounded-md p-2"></div>
+          </div>
+        }
+      </div>
+    </form>
+  </section>
+
+</div>

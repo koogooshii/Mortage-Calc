@@ -1,0 +1,126 @@
+<div class="space-y-8">
+  <div class="text-center">
+    <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Mortgage Toolkit</h2>
+    <p class="mt-4 text-lg leading-8 text-gray-300">A suite of powerful tools to help you analyze, compare, and manage your mortgage.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (tool of tools; track tool.id) {
+      <div 
+        (click)="selectMode(tool.id)"
+        class="relative group bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700 transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1"
+        [class]="'hover:border-' + tool.color + '-500'">
+        
+        <div 
+            class="absolute top-0 right-0 h-24 w-24 text-gray-700/30 transition-all duration-300 transform group-hover:scale-150"
+            [class]="'group-hover:text-' + tool.color + '-600/40'"
+            style="z-index: 0;">
+          @switch (tool.icon) {
+            @case ('table-cells') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+              </svg>
+            }
+            @case ('arrows-right-left') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h18m-7.5-14L21 6.5m0 0L16.5 11M21 6.5H3" />
+              </svg>
+            }
+            @case ('chart-bar-square') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.25A2.25 2.25 0 0 0 18 3H6A2.25 2.25 0 0 0 3.75 5.25v12.75A2.25 2.25 0 0 0 6 20.25Z" />
+              </svg>
+            }
+             @case ('list-bullet') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+              </svg>
+            }
+            @case ('clipboard-document-check') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-1.125 0-2.25.9-2.25 2.25v15c0 1.125.9 2.25 2.25 2.25h10.5c1.125 0 2.25-.9 2.25-2.25v-15c0-1.125-.9-2.25-2.25-2.25h-4.5m-1.875 0c.398.02.79.06 1.174.124-.314.04-.632.09-.954.148-1.125.17-2.185.51-3.14 1.018M10.125 2.25c.398.02.79.06 1.174.124-1.125.17-2.185.51-3.14 1.018.955-.508 2.015-.848-3.14 1.018.322-.058.64-.108.954-.148Zm.002 18c-.398-.02-.79-.06-1.174-.124.314-.04.632-.09.954-.148 1.125-.17 2.185-.51 3.14-1.018M10.125 20.25c-.398-.02-.79-.06-1.174-.124 1.125-.17 2.185-.51 3.14-1.018-.955.508-2.015.848-3.14 1.018-.322.058-.64.108-.954.148Zm-3.14-1.018a5.25 5.25 0 0 0 0-10.5m0 10.5a5.25 5.25 0 0 1 0-10.5m0 10.5c.398.02.79.06 1.174.124m-1.174-.124a5.25 5.25 0 0 1 0-10.5m-3.14 1.018c-.955.508-2.015.848-3.14 1.018m3.14-1.018c.322.058.64.108.954.148m-3.14-1.018.002 18m0-18.002c-.398-.02-.79-.06-1.174-.124m1.174.124c-.314.04-.632.09-.954.148m12.632 2.376a5.25 5.25 0 0 0-10.5 0m10.5 0a5.25 5.25 0 0 1-10.5 0m10.5 0c.398.02.79.06 1.174.124m-1.174-.124c.314.04.632.09-.954.148m-1.875 0a5.25 5.25 0 0 0-10.5 0m10.5 0a5.25 5.25 0 0 1-10.5 0" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 10.19 1.802 1.802-4.995 4.995-3.003-3.004 4.996-4.993Z" />
+              </svg>
+            }
+            @case ('building-office') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M6.75 21v-2.25a2.25 2.25 0 0 1 2.25-2.25h6a2.25 2.25 0 0 1 2.25 2.25V21" />
+              </svg>
+            }
+             @case ('banknotes') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            }
+            @case('swirl') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75v16.5M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9" />
+              </svg>
+            }
+            @case('truck') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5h10.5a1.125 1.125 0 001.125-1.125V6.75a1.125 1.125 0 00-1.125-1.125H3.375A1.125 1.125 0 002.25 6.75v10.5a1.125 1.125 0 001.125 1.125z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V6.75a1.5 1.5 0 00-1.5-1.5h-1.5a1.5 1.5 0 00-1.5 1.5V9m1.5-3V9m0 0h-3" />
+              </svg>
+            }
+            @case('gift') {
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.5v16.5m0-16.5c-2.488 0-4.5 2.012-4.5 4.5 0 .828.22 1.594.613 2.25M12 4.5c2.488 0 4.5 2.012 4.5 4.5 0 .828-.22 1.594-.613 2.25M12 4.5v16.5m-4.5-16.5h9" />
+              </svg>
+            }
+          }
+        </div>
+
+        <div class="relative z-10">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-gray-700/50 rounded-lg">
+               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" 
+                    class="w-6 h-6"
+                    [class]="'text-' + tool.color + '-400'">
+                  @switch (tool.icon) {
+                    @case ('table-cells') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                    }
+                    @case ('arrows-right-left') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h18m-7.5-14L21 6.5m0 0L16.5 11M21 6.5H3" />
+                    }
+                    @case ('chart-bar-square') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.25A2.25 2.25 0 0 0 18 3H6A2.25 2.25 0 0 0 3.75 5.25v12.75A2.25 2.25 0 0 0 6 20.25Z" />
+                    }
+                    @case ('list-bullet') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    }
+                    @case ('clipboard-document-check') {
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-1.125 0-2.25.9-2.25 2.25v15c0 1.125.9 2.25 2.25 2.25h10.5c1.125 0 2.25-.9 2.25-2.25v-15c0-1.125-.9-2.25-2.25-2.25h-4.5m-1.875 0c.398.02.79.06 1.174.124-.314.04-.632.09-.954.148-1.125.17-2.185.51-3.14 1.018M10.125 2.25c.398.02.79.06 1.174.124-1.125.17-2.185.51-3.14 1.018.955-.508 2.015-.848-3.14 1.018.322-.058.64-.108.954-.148Zm.002 18c-.398-.02-.79-.06-1.174-.124.314-.04.632-.09.954-.148 1.125-.17 2.185-.51 3.14-1.018M10.125 20.25c-.398-.02-.79-.06-1.174-.124 1.125-.17 2.185-.51 3.14-1.018-.955.508-2.015.848-3.14 1.018-.322.058-.64.108-.954-.148Zm-3.14-1.018a5.25 5.25 0 0 0 0-10.5m0 10.5a5.25 5.25 0 0 1 0-10.5m0 10.5c.398.02.79.06 1.174.124m-1.174-.124a5.25 5.25 0 0 1 0-10.5m-3.14 1.018c-.955.508-2.015.848-3.14 1.018m3.14-1.018c.322.058.64.108.954.148m-3.14-1.018.002 18m0-18.002c-.398-.02-.79-.06-1.174-.124m1.174.124c-.314.04-.632.09-.954.148m12.632 2.376a5.25 5.25 0 0 0-10.5 0m10.5 0a5.25 5.25 0 0 1-10.5 0m10.5 0c.398.02.79.06 1.174.124m-1.174-.124c.314.04.632.09.954.148m-1.875 0a5.25 5.25 0 0 0-10.5 0m10.5 0a5.25 5.25 0 0 1-10.5 0" />
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 10.19 1.802 1.802-4.995 4.995-3.003-3.004 4.996-4.993Z" />
+                    }
+                    @case ('building-office') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M6.75 21v-2.25a2.25 2.25 0 0 1 2.25-2.25h6a2.25 2.25 0 0 1 2.25 2.25V21" />
+                    }
+                    @case ('banknotes') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    }
+                    @case('swirl') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75v16.5M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9" />
+                    }
+                    @case('truck') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5h10.5a1.125 1.125 0 001.125-1.125V6.75a1.125 1.125 0 00-1.125-1.125H3.375A1.125 1.125 0 002.25 6.75v10.5a1.125 1.125 0 001.125 1.125z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V6.75a1.5 1.5 0 00-1.5-1.5h-1.5a1.5 1.5 0 00-1.5 1.5V9m1.5-3V9m0 0h-3" />
+                    }
+                    @case('gift') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.5v16.5m0-16.5c-2.488 0-4.5 2.012-4.5 4.5 0 .828.22 1.594.613 2.25M12 4.5c2.488 0 4.5 2.012 4.5 4.5 0 .828-.22 1.594-.613 2.25M12 4.5v16.5m-4.5-16.5h9" />
+                    }
+                  }
+               </svg>
+            </div>
+            <h3 class="text-xl font-semibold"
+                [class]="'text-' + tool.color + '-400'">{{ tool.title }}</h3>
+          </div>
+          <p class="text-gray-300 text-sm leading-relaxed">{{ tool.description }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
