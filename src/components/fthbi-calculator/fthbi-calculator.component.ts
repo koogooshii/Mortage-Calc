@@ -7,7 +7,7 @@ import { MortgageService } from '../../services/mortgage.service';
 @Component({
   selector: 'app-fthbi-calculator',
   standalone: true,
-  imports: [ReactiveFormsModule, CurrencyPipe, PercentPipe, CommonModule],
+  imports: [ReactiveFormsModule, CurrencyPipe, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './fthbi-calculator.component.html',
 })

@@ -1,5 +1,6 @@
 
-import { LoanEvent } from './mortgage.model';
+
+import { LoanEvent, PaymentFrequency } from './mortgage.model';
 
 export interface OriginalLoanFormState {
   purchasePrice: number;
@@ -7,7 +8,7 @@ export interface OriginalLoanFormState {
   interestRate: number;
   amortizationPeriod: number;
   term: number;
-  paymentFrequency: string;
+  paymentFrequency: PaymentFrequency;
   startDate: string;
 }
 

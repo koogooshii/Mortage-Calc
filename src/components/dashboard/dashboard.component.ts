@@ -2,7 +2,7 @@
 
 import { Component, ChangeDetectionStrategy, output } from '@angular/core';
 
-export type CalculatorMode = 'compare' | 'refinance' | 'history' | 'features' | 'planner' | 'rental' | 'heloc' | 'blended' | 'portability' | 'fthbi';
+export type CalculatorMode = 'dashboard' | 'compare' | 'refinance' | 'history' | 'features' | 'planner' | 'rental' | 'heloc' | 'blended' | 'portability' | 'fthbi';
 
 interface DashboardItem {
   id: CalculatorMode;

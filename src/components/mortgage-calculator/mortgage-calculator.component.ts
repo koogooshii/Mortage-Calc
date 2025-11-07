@@ -12,7 +12,7 @@ import { ScenarioState } from '../../models/scenario.model';
 import { GeminiAiService } from '../../services/gemini-ai.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-export { ScenarioState };
+export type { ScenarioState };
 
 @Component({
   selector: 'app-mortgage-calculator',

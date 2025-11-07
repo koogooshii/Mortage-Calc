@@ -17,7 +17,7 @@ interface AffordabilityResult {
 @Component({
   selector: 'app-pre-purchase-planner',
   standalone: true,
-  imports: [ReactiveFormsModule, CurrencyPipe, CommonModule, PercentPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pre-purchase-planner.component.html',
 })

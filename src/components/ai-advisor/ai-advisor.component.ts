@@ -1,4 +1,5 @@
 
+
 import { Component, ChangeDetectionStrategy, input, signal, computed, inject } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { GeminiAiService } from '../../services/gemini-ai.service';
@@ -7,7 +8,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 @Component({
   selector: 'app-ai-advisor',
   standalone: true,
-  imports: [CurrencyPipe],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ai-advisor.component.html',
 })
