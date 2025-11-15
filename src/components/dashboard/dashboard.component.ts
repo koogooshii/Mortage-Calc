@@ -1,8 +1,10 @@
 
 
+
+
 import { Component, ChangeDetectionStrategy, output } from '@angular/core';
 
-export type CalculatorMode = 'dashboard' | 'compare' | 'refinance' | 'history' | 'features' | 'planner' | 'rental' | 'heloc' | 'blended' | 'portability' | 'fthbi';
+export type CalculatorMode = 'toolkit' | 'compare' | 'refinance' | 'history' | 'features' | 'planner' | 'rental' | 'heloc' | 'blended' | 'portability';
 
 interface DashboardItem {
   id: CalculatorMode;
@@ -23,13 +25,6 @@ export class DashboardComponent {
   modeSelected = output<CalculatorMode>();
 
   tools: DashboardItem[] = [
-    {
-      id: 'compare',
-      title: 'Compare Scenarios',
-      description: 'Model and compare up to three mortgage scenarios with complex prepayment options and what-if analysis.',
-      icon: 'table-cells',
-      color: 'cyan',
-    },
     {
       id: 'planner',
       title: 'Pre-Purchase Planner',
@@ -71,13 +66,6 @@ export class DashboardComponent {
       description: 'Model a Home Equity Line of Credit, including draw and repayment periods, to see your potential borrowing power.',
       icon: 'banknotes',
       color: 'teal',
-    },
-     {
-      id: 'fthbi',
-      title: 'Shared Equity Modeler',
-      description: 'Model a shared-equity mortgage (like the former FTHBI) to see its impact on payments and long-term equity.',
-      icon: 'gift',
-      color: 'rose',
     },
     {
       id: 'history',

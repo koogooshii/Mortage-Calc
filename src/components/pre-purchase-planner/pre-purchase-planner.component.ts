@@ -14,10 +14,25 @@ interface AffordabilityResult {
   maxMonthlyPITI: number;
 }
 
+interface LttResult {
+  provincialTax: number;
+  municipalTax: number;
+  totalTax: number;
+  rebate: number;
+}
+
+interface CmhcResult {
+  premiumAmount: number;
+  pstOnPremium: number;
+  totalInsuranceCost: number;
+  totalMortgage: number;
+  isEligible: boolean;
+}
+
 @Component({
   selector: 'app-pre-purchase-planner',
   standalone: true,
-  imports: [ReactiveFormsModule, CurrencyPipe, CommonModule],
+  imports: [ReactiveFormsModule, CurrencyPipe, CommonModule, PercentPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pre-purchase-planner.component.html',
 })
@@ -52,31 +67,34 @@ export class PrePurchasePlannerComponent {
     initialValue: this.plannerForm.getRawValue(),
   });
   
-  // --- Affordability Calculation ---
+  // --- Affordability Calculation (Canadian GDS/TDS rules) ---
   affordabilityResult = computed<AffordabilityResult>(() => {
     const { annualIncome, monthlyDebts, downPayment, interestRate, amortizationPeriod } = this.formValues();
-    const monthlyIncome = (annualIncome ?? 0) / 12;
+    if (!annualIncome || !downPayment || !interestRate || !amortizationPeriod) {
+      return { maxHomePrice: 0, maxLoanAmount: 0, maxMonthlyPITI: 0 };
+    }
+    const monthlyIncome = annualIncome / 12;
     const gdsLimit = 0.39; // Gross Debt Service Ratio
     const tdsLimit = 0.44; // Total Debt Service Ratio
-
-    // Assuming ~1.5% of home value for property tax and heating costs
     const estimatedAnnualTaxesAndHeat = 0.015;
     
-    // Iteratively find the max home price
-    let maxHomePrice = (annualIncome ?? 0) * 5; // Starting guess
+    let maxHomePrice = annualIncome * 5; // Starting guess
     for (let i = 0; i < 5; i++) {
-        const estimatedMonthlyTaxesAndHeat = (maxHomePrice * estimatedAnnualTaxesAndHeat) / 12;
         const loanAmount = maxHomePrice - (downPayment ?? 0);
         if (loanAmount <= 0) { maxHomePrice = 0; continue; }
 
-        const monthlyPI = this.mortgageService.calculateMonthlyPayment(loanAmount, (interestRate ?? 0) / 100, amortizationPeriod ?? 0);
+        const monthlyPI = this.mortgageService.calculateMonthlyPayment(loanAmount, interestRate / 100, amortizationPeriod);
+        const estimatedMonthlyTaxesAndHeat = (maxHomePrice * estimatedAnnualTaxesAndHeat) / 12;
+        
         const gdsPITH = monthlyPI + estimatedMonthlyTaxesAndHeat;
-        const maxIncomeForGDS = gdsPITH / (gdsLimit / 12);
+        const maxIncomeForGDS = gdsPITH / gdsLimit;
         
         const tdsPITH = gdsPITH + (monthlyDebts ?? 0);
-        const maxIncomeForTDS = tdsPITH / (tdsLimit / 12);
+        const maxIncomeForTDS = tdsPITH / tdsLimit;
 
         const requiredMonthlyIncome = Math.max(maxIncomeForGDS, maxIncomeForTDS);
+        if(requiredMonthlyIncome === 0) { maxHomePrice = 0; continue; }
+
         const affordabilityRatio = monthlyIncome / requiredMonthlyIncome;
         
         if (Math.abs(1 - affordabilityRatio) < 0.001) break;
@@ -95,19 +113,69 @@ export class PrePurchasePlannerComponent {
   });
   
   paymentAtQualifyingRate = computed(() => {
-      const { downPayment, amortizationPeriod, paymentFrequency } = this.formValues();
+      const { amortizationPeriod } = this.formValues();
       const loanAmount = this.affordabilityResult().maxLoanAmount;
       if (loanAmount <= 0) return 0;
       return this.mortgageService.calculateMonthlyPayment(loanAmount, this.qualifyingRate() / 100, amortizationPeriod ?? 0);
   });
 
   // --- Closing Costs (LTT + CMHC) ---
-  lttResult = computed(() => { /* ... LTT logic ... */ 
-      const price = this.affordabilityResult().maxHomePrice;
-      // ... (logic from LandTransferTaxCalculatorComponent)
-       return { totalTax: 0, rebate: 0 }; // Simplified
+  lttResult = computed<LttResult>(() => {
+    const { province, isToronto, isFirstTimeBuyer } = this.formValues();
+    const purchasePrice = this.affordabilityResult().maxHomePrice;
+    if (!purchasePrice || !province) {
+      return { provincialTax: 0, municipalTax: 0, totalTax: 0, rebate: 0 };
+    }
+    let provincialTax = 0, municipalTax = 0, rebate = 0;
+    switch (province) {
+      case 'ON':
+        provincialTax = this.calculateBrackets(purchasePrice, [{ threshold: 55000, rate: 0.005 }, { threshold: 250000, rate: 0.01 }, { threshold: 400000, rate: 0.015 }, { threshold: 2000000, rate: 0.02 }, { threshold: Infinity, rate: 0.025 }]);
+        if (isFirstTimeBuyer) rebate = Math.min(provincialTax, 4000);
+        if (isToronto) {
+          municipalTax = this.calculateBrackets(purchasePrice, [{ threshold: 55000, rate: 0.005 }, { threshold: 250000, rate: 0.01 }, { threshold: 400000, rate: 0.015 }, { threshold: 2000000, rate: 0.02 }, { threshold: Infinity, rate: 0.025 }]);
+          if (isFirstTimeBuyer) rebate += Math.min(municipalTax, 4475);
+        }
+        break;
+      case 'BC':
+        provincialTax = this.calculateBrackets(purchasePrice, [{ threshold: 200000, rate: 0.01 }, { threshold: 2000000, rate: 0.02 }, { threshold: 3000000, rate: 0.03 }, { threshold: Infinity, rate: 0.05 }]);
+        if (isFirstTimeBuyer && purchasePrice <= 500000) rebate = provincialTax;
+        break;
+      // Other provinces would have their logic here.
+    }
+    provincialTax = Math.max(0, provincialTax);
+    municipalTax = Math.max(0, municipalTax);
+    const totalTax = provincialTax + municipalTax - rebate;
+    return { provincialTax, municipalTax, totalTax: Math.max(0, totalTax), rebate };
   });
-  cmhcResult = computed(() => { /* ... CMHC logic ... */ return { totalInsuranceCost: 0, isEligible: false}; });
+
+  cmhcResult = computed<CmhcResult>(() => {
+    const { downPayment, amortizationPeriod, province } = this.formValues();
+    const purchasePrice = this.affordabilityResult().maxHomePrice;
+    const loanAmount = purchasePrice - (downPayment ?? 0);
+    const ltv = purchasePrice > 0 ? (loanAmount / purchasePrice) * 100 : 0;
+    
+    let isEligible = purchasePrice < 1000000 && ltv > 80 && ltv <= 95;
+    if (!isEligible) return { premiumAmount: 0, pstOnPremium: 0, totalInsuranceCost: 0, totalMortgage: loanAmount, isEligible: false };
+
+    let rate = 0;
+    if (ltv > 90) rate = 4.00;
+    else if (ltv > 85) rate = 3.10;
+    else rate = 2.80;
+    if ((amortizationPeriod ?? 25) > 25) rate += 0.20;
+    
+    const premiumRate = rate / 100;
+    const premiumAmount = loanAmount * premiumRate;
+    
+    const pstRate = province === 'ON' ? 0.08 : (province === 'QC' ? 0.09 : 0);
+    const pstOnPremium = premiumAmount * pstRate;
+    const totalInsuranceCost = premiumAmount + pstOnPremium;
+    const totalMortgage = loanAmount + premiumAmount;
+
+    return { premiumAmount, pstOnPremium, totalInsuranceCost, totalMortgage, isEligible: true };
+  });
+
+  totalClosingCosts = computed(() => this.lttResult().totalTax + (this.cmhcResult().isEligible ? this.cmhcResult().pstOnPremium : 0));
+  totalUpfrontCash = computed(() => (this.formValues().downPayment ?? 0) + this.totalClosingCosts());
 
   // --- HBP Calculation ---
   hbpRepayment = computed(() => (this.formValues().withdrawalAmount ?? 0) / 15);
@@ -115,5 +183,18 @@ export class PrePurchasePlannerComponent {
 
   setView(mode: ViewMode) {
     this.viewMode.set(mode);
+  }
+
+  private calculateBrackets(value: number, brackets: { threshold: number; rate: number }[]): number {
+    let tax = 0;
+    let previousThreshold = 0;
+    for (const bracket of brackets) {
+      if (value > previousThreshold) {
+        const taxableAmount = Math.min(value, bracket.threshold) - previousThreshold;
+        tax += taxableAmount * bracket.rate;
+      }
+      previousThreshold = bracket.threshold;
+    }
+    return tax;
   }
 }

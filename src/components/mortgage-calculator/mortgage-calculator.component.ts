@@ -104,12 +104,12 @@ export class MortgageCalculatorComponent {
   aiGoalSeekerComponent = viewChild(AiGoalSeekerComponent);
 
   totalLoanTermInYears = computed(() => {
-    const form = this.mortgageForm.value;
+    const form = this.state().formValues;
     return (form.loanTerm ?? 0) + ((form.loanTermMonths ?? 0) / 12);
   });
 
   baseMonthlyPayment = computed(() => {
-    const { loanAmount, interestRate } = this.mortgageForm.value;
+    const { loanAmount, interestRate } = this.state().formValues;
     const totalLoanTerm = this.totalLoanTermInYears();
     if (!loanAmount || !interestRate || !totalLoanTerm) return 0;
     return this.mortgageService.calculateMonthlyPayment(loanAmount, interestRate / 100, totalLoanTerm);
@@ -141,21 +141,22 @@ export class MortgageCalculatorComponent {
 
     // Perform calculation when any relevant state changes
     effect(() => {
-      const form = this.mortgageForm.getRawValue();
-      const allRecurringPayments = [...this.recurringPayments()];
-      if (this.extraMonthlyPayment() > 0) {
-        allRecurringPayments.push({ amount: this.extraMonthlyPayment(), frequency: 'monthly' });
+      const state = this.state();
+      const form = state.formValues;
+      const allRecurringPayments = [...state.recurringPayments];
+      if (state.extraMonthlyPayment > 0) {
+        allRecurringPayments.push({ amount: state.extraMonthlyPayment, frequency: 'monthly' });
       }
 
       const params = {
         ...form,
         loanTerm: this.totalLoanTermInYears(),
-        annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
+        annualPaymentIncreasePercentage: state.annualPaymentIncreasePercentage,
         recurringPayments: allRecurringPayments,
-        oneTimePayments: this.oneTimePayments(),
-        deferments: this.deferments(),
-        adHocPayments: this.adHocPayments(),
-        rateChanges: this.rateChanges(),
+        oneTimePayments: state.oneTimePayments,
+        deferments: state.deferments,
+        adHocPayments: state.adHocPayments,
+        rateChanges: state.rateChanges,
       };
 
       const { schedule, summary, baselineSchedule, fullSchedule } = this.mortgageService.generateScheduleAndSummary(params as any);
@@ -167,8 +168,8 @@ export class MortgageCalculatorComponent {
       this.summaryUpdated.emit({ 
         summary, 
         formValues: form,
-        extraMonthlyPayment: this.extraMonthlyPayment(),
-        recurringPayments: this.recurringPayments()
+        extraMonthlyPayment: state.extraMonthlyPayment,
+        recurringPayments: state.recurringPayments
       });
     }, { allowSignalWrites: true });
   }

@@ -1,5 +1,7 @@
 
 
+
+
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { MortgageCalculatorComponent, ScenarioState } from './components/mortgage-calculator/mortgage-calculator.component';
 import { RefinanceCalculatorComponent } from './components/refinance-calculator/refinance-calculator.component';
@@ -13,7 +15,7 @@ import { effect } from '@angular/core';
 import { PrePurchasePlannerComponent } from './components/pre-purchase-planner/pre-purchase-planner.component';
 import { BlendedMortgageCalculatorComponent } from './components/blended-mortgage-calculator/blended-mortgage-calculator.component';
 import { PortabilityAnalyzerComponent } from './components/portability-analyzer/portability-analyzer.component';
-import { FthbiCalculatorComponent } from './components/fthbi-calculator/fthbi-calculator.component';
+
 
 @Component({
   selector: 'app-root',
@@ -29,7 +31,7 @@ import { FthbiCalculatorComponent } from './components/fthbi-calculator/fthbi-ca
     PrePurchasePlannerComponent,
     BlendedMortgageCalculatorComponent,
     PortabilityAnalyzerComponent,
-    FthbiCalculatorComponent,
+    
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.component.html',
@@ -37,14 +39,14 @@ import { FthbiCalculatorComponent } from './components/fthbi-calculator/fthbi-ca
 export class AppComponent {
   private scenarioPersistenceService = inject(ScenarioPersistenceService);
   
-  mode = signal<CalculatorMode>('dashboard');
+  mode = signal<CalculatorMode>('compare');
 
   scenarios = signal<ScenarioState[]>([]);
   scenarioColors = ['cyan', 'fuchsia', 'yellow'];
 
   pageTitle = computed(() => {
     const currentMode = this.mode();
-    if (currentMode === 'dashboard') return '';
+    if (currentMode === 'toolkit') return 'Mortgage Toolkit';
     if (currentMode === 'compare') return 'Compare Scenarios';
     if (currentMode === 'history') return 'Loan History Tracker';
     if (currentMode === 'refinance') return 'Refinance Analysis';
@@ -54,7 +56,7 @@ export class AppComponent {
     if (currentMode === 'heloc') return 'HELOC Calculator';
     if (currentMode === 'blended') return 'Blended Mortgage Calculator';
     if (currentMode === 'portability') return 'Mortgage Portability Analyzer';
-    if (currentMode === 'fthbi') return 'Shared Equity (FTHBI) Modeler';
+    
     return '';
   });
 

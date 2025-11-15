@@ -9,11 +9,17 @@
       <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
         <h3 class="font-semibold text-lg text-gray-200">Current Mortgage</h3>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Current Balance</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Current Balance</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The outstanding principal amount you still owe on your current mortgage.</div></div>
+          </label>
           <input type="number" formControlName="currentBalance" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Current Interest Rate (%)</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Current Interest Rate (%)</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The contractual interest rate on your existing mortgage.</div></div>
+          </label>
           <input type="number" step="0.01" formControlName="currentRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
       </div>
@@ -22,11 +28,17 @@
       <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
         <h3 class="font-semibold text-lg text-gray-200">New Property</h3>
         <div>
-          <label class="block text-sm font-medium text-gray-300">New Home Purchase Price</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>New Home Purchase Price</span>
+             <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The price of the new home you intend to buy.</div></div>
+          </label>
           <input type="number" formControlName="newHomePrice" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Down Payment on New Home</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Down Payment on New Home</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total cash down payment you will make on the new property. This often includes equity from your previous home.</div></div>
+          </label>
           <input type="number" formControlName="newDownPayment" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
       </div>
@@ -35,19 +47,31 @@
       <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
         <h3 class="font-semibold text-lg text-gray-200">Rates & Costs</h3>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Penalty to Break Mortgage</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Penalty to Break Mortgage</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The estimated cost to break your current mortgage contract early. Use the Refinance calculator for a detailed estimate.</div></div>
+          </label>
           <input type="number" formControlName="breakPenalty" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Lender's Rate for New Funds (%)</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Lender's Rate for New Funds (%)</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The interest rate your current lender will charge for any additional funds needed when porting.</div></div>
+          </label>
           <input type="number" step="0.01" formControlName="lenderRateForNewFunds" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300">New Market Rate (%)</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>New Market Rate (%)</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The interest rate you could get today for a completely new mortgage from any lender.</div></div>
+          </label>
           <input type="number" step="0.01" formControlName="newMarketRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300">Amortization Period (Years)</label>
+          <label class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Amortization Period (Years)</span>
+            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The amortization period for either the ported/blended mortgage or the new mortgage.</div></div>
+          </label>
           <input type="number" formControlName="amortizationYears" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
         </div>
       </div>

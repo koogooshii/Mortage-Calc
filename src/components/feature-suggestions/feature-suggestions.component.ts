@@ -85,24 +85,5 @@ export class FeatureSuggestionsComponent {
     }
   ];
 
-  readonly roadmap: Feature[] = [
-    {
-      title: 'Blended Mortgage Calculator',
-      description: 'Model a "blend and extend" mortgage scenario where you combine your current rate with a new rate for a new term, avoiding penalties.',
-      icon: 'swirl',
-      status: 'Done',
-    },
-    {
-      title: 'Mortgage Portability Analysis',
-      description: 'Compare the financial outcomes of porting your existing mortgage to a new property versus breaking it and getting a new one.',
-      icon: 'truck',
-      status: 'Done',
-    },
-    {
-      title: 'First-Time Home Buyer Incentive',
-      description: 'Model the shared-equity mortgage from the Canadian government to see its impact on payments and long-term equity.',
-      icon: 'gift',
-      status: 'Done',
-    },
-  ];
+  readonly roadmap: Feature[] = [];
 }

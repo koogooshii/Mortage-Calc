@@ -17,39 +17,34 @@
         <h3 class="text-xl font-semibold text-gray-200 mb-4">Your Financial Profile</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-300">Gross Annual Income</label>
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Gross Annual Income</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Your total household income from all sources before any taxes or deductions are taken out.</div></div></label>
             <input type="number" formControlName="annualIncome" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-300">Total Monthly Debts</label>
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Total Monthly Debts</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">Sum of all your recurring monthly debt payments (e.g., car loans, student loans, credit card minimums). Do not include rent.</div></div></label>
             <input type="number" formControlName="monthlyDebts" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-300">Down Payment</label>
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Down Payment</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The amount of cash you will pay upfront. This can include funds from the RRSP Home Buyers' Plan.</div></div></label>
             <input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-300">Mortgage Interest Rate (%)</label>
-            <input type="number" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Mortgage Interest Rate (%)</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The estimated mortgage rate you expect to get for your loan.</div></div></label>
+            <input type="number" step="0.01" formControlName="interestRate" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-300">Amortization Period (Years)</label>
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Amortization Period (Years)</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The total length of time it will take to pay off your entire mortgage (e.g., 25 years).</div></div></label>
             <input type="number" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-300">Province</label>
+            <label class="block text-sm font-medium text-gray-300 flex items-center gap-1"><span>Province</span><div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The province where the property is located, used for Land Transfer Tax and CMHC calculations.</div></div></label>
             <select formControlName="province" class="mt-1 block w-full bg-gray-700 p-2 rounded-md">
-                <option value="ON">Ontario</option>
-                <option value="BC">British Columbia</option>
-                <option value="QC">Quebec</option>
-                <option value="AB">Alberta</option>
-                <option value="MB">Manitoba</option>
-                <option value="SK">Saskatchewan</option>
-                <option value="NS">Nova Scotia</option>
-                <option value="NB">New Brunswick</option>
-                <option value="PE">Prince Edward Island</option>
-                <option value="NL">Newfoundland & Labrador</option>
+                <option value="ON">Ontario</option> <option value="BC">British Columbia</option> <option value="QC">Quebec</option> <option value="AB">Alberta</option> <option value="MB">Manitoba</option> <option value="SK">Saskatchewan</option> <option value="NS">Nova Scotia</option> <option value="NB">New Brunswick</option> <option value="PE">Prince Edward Island</option> <option value="NL">Newfoundland & Labrador</option>
             </select>
+          </div>
+           <div class="flex items-center">
+            <input id="isFirstTimeBuyer" formControlName="isFirstTimeBuyer" type="checkbox" class="h-4 w-4 rounded border-gray-500 bg-gray-700 text-blue-600 focus:ring-blue-600">
+            <label for="isFirstTimeBuyer" class="ml-2 block text-sm text-gray-300">First-Time Home Buyer?</label>
           </div>
         </div>
       </section>
@@ -65,7 +60,7 @@
                       <p class="text-lg text-gray-300">Max Affordable Home Price</p>
                       <p class="text-5xl font-extrabold text-white tracking-tight">{{ affordabilityResult().maxHomePrice | currency:'USD':'symbol':'1.0-0' }}</p>
                   </div>
-                  <div class="space-y-3 text-sm text-left">
+                  <div class="space-y-3 text-sm text-left max-w-sm mx-auto">
                       <div class="flex justify-between items-center bg-gray-800/50 p-2 rounded-md"><span class="text-gray-400">Max Loan Amount:</span><span class="font-mono">{{ affordabilityResult().maxLoanAmount | currency:'USD':'symbol':'1.0-0' }}</span></div>
                       <div class="flex justify-between items-center bg-gray-800/50 p-2 rounded-md"><span class="text-gray-400">Estimated Monthly P&I:</span><span class="font-mono">{{ affordabilityResult().maxMonthlyPITI | currency }}</span></div>
                   </div>
@@ -77,26 +72,43 @@
                   <div class="text-center">
                       <p class="text-lg text-gray-300">Your Qualifying Rate is</p>
                       <p class="text-4xl font-extrabold text-white tracking-tight my-1">{{ qualifyingRate() | number:'1.2-2' }}%</p>
-                      <p class="text-sm text-gray-400">This is the higher of your rate + 2% or the 5.25% benchmark.</p>
+                      <p class="text-sm text-gray-400">Higher of your rate + 2% or the 5.25% benchmark.</p>
                   </div>
                   <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-700">
-                      <div class="bg-gray-800/50 p-3 rounded">
+                      <div class="bg-gray-800/50 p-3 rounded text-center">
                           <h5 class="font-semibold text-white">Payment at Contract Rate</h5>
-                          <p class="text-xl font-bold text-gray-300">{{ affordabilityResult().maxMonthlyPITI | currency }}</p>
+                          <p class="text-2xl font-bold text-gray-300">{{ affordabilityResult().maxMonthlyPITI | currency }}</p>
                       </div>
-                      <div class="bg-gray-800/50 p-3 rounded">
+                      <div class="bg-gray-800/50 p-3 rounded text-center">
                           <h5 class="font-semibold text-white">Payment at Qualifying Rate</h5>
-                          <p class="text-xl font-bold text-red-400">{{ paymentAtQualifyingRate() | currency }}</p>
+                          <p class="text-2xl font-bold text-red-400">{{ paymentAtQualifyingRate() | currency }}</p>
                       </div>
                   </div>
                   <p class="text-center text-gray-300">You must prove you can afford the higher qualifying payment to be approved for your loan.</p>
               </div>
           }
           @case ('closingCosts') {
-              <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-purple-500">
-                  <h4 class="text-xl font-bold text-purple-400 text-center mb-4">Estimated Closing Costs</h4>
-                  <!-- LTT and CMHC results would go here -->
-                  <p class="text-center text-gray-400">Land Transfer Tax and CMHC premium calculations will be displayed here based on your affordable home price.</p>
+              <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-purple-500 space-y-6">
+                  <h4 class="text-xl font-bold text-purple-400 text-center">Estimated Closing Costs</h4>
+                  <div class="text-center">
+                      <p class="text-lg text-gray-300">Total Cash Required at Closing</p>
+                      <p class="text-5xl font-extrabold text-white tracking-tight">{{ totalUpfrontCash() | currency:'USD':'symbol':'1.0-0' }}</p>
+                  </div>
+                  <div class="space-y-4 pt-4 border-t border-gray-700 max-w-md mx-auto">
+                    <div class="flex justify-between text-lg"><span class="font-semibold text-gray-300">Your Down Payment:</span><span class="font-mono">{{ plannerForm.value.downPayment | currency }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">Land Transfer Tax:</span><span class="font-mono">{{ lttResult().totalTax | currency }}</span></div>
+                    @if(cmhcResult().isEligible) {
+                      <div class="flex justify-between"><span class="text-gray-400">PST on CMHC Premium:</span><span class="font-mono">{{ cmhcResult().pstOnPremium | currency }}</span></div>
+                    }
+                    <div class="flex justify-between font-bold text-lg border-t border-gray-600 pt-2 mt-2"><span class="text-white">Total Upfront Cash:</span><span class="font-mono">{{ totalUpfrontCash() | currency }}</span></div>
+                  </div>
+                   @if(cmhcResult().isEligible) {
+                      <div class="pt-4 border-t border-gray-700 text-center">
+                          <h5 class="font-semibold text-lg text-white">CMHC Insurance</h5>
+                          <p class="text-gray-400 text-sm">Your CMHC premium of <strong class="text-white">{{ cmhcResult().premiumAmount | currency }}</strong> will be added to your mortgage.</p>
+                          <p class="text-lg font-semibold mt-2">New Total Mortgage: <strong class="text-green-400">{{ cmhcResult().totalMortgage | currency }}</strong></p>
+                      </div>
+                   }
               </div>
           }
           @case ('hbp') {

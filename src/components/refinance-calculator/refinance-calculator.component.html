@@ -43,8 +43,20 @@
             @if(showPenaltyCalc()) {
                 <div class="p-4 border-t border-gray-700 space-y-4">
                     <form [formGroup]="penaltyForm" class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-xs text-gray-400">Months in Term Remaining</label><input type="number" formControlName="remainingMonths" class="mt-1 w-full bg-gray-700 p-1 rounded"></div>
-                        <div><label class="block text-xs text-gray-400">Lender's Posted Rate (%)</label><input type="number" step="0.01" formControlName="postedRate" class="mt-1 w-full bg-gray-700 p-1 rounded"></div>
+                        <div>
+                          <label class="block text-xs text-gray-400 flex items-center gap-1">
+                            <span>Months in Term Remaining</span>
+                            <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The number of months left on your current mortgage contract before it's up for renewal.</div></div>
+                          </label>
+                          <input type="number" formControlName="remainingMonths" class="mt-1 w-full bg-gray-700 p-1 rounded">
+                        </div>
+                        <div>
+                          <label class="block text-xs text-gray-400 flex items-center gap-1">
+                            <span>Lender's Posted Rate (%)</span>
+                             <div class="group relative"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg><div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The interest rate your lender publicly advertises for a new mortgage with a term length similar to your remaining time. You must ask your lender for this specific rate for an accurate IRD calculation.</div></div>
+                          </label>
+                          <input type="number" step="0.01" formControlName="postedRate" class="mt-1 w-full bg-gray-700 p-1 rounded">
+                        </div>
                     </form>
                     <div class="grid grid-cols-3 gap-4 text-center">
                         <div class="bg-gray-900/40 p-2 rounded"><h5 class="text-xs text-gray-400">Three Months' Interest</h5><p class="font-bold">{{ threeMonthPenalty() | currency }}</p></div>
