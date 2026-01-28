@@ -1,0 +1,115 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-5xl mx-auto">
+
+  <!-- Disclaimer -->
+  <div class="bg-yellow-900/50 border border-yellow-700 rounded-lg p-4 text-center text-yellow-200">
+    <h3 class="font-bold">Important Notice</h3>
+    <p class="text-sm">The federal First-Time Home Buyer Incentive (FTHBI) program concluded on March 21, 2024, and is no longer accepting applications. This calculator is for educational purposes to model how shared-equity mortgages work.</p>
+  </div>
+  
+  <!-- Form Section -->
+  <section>
+    <h2 class="text-2xl font-semibold text-center mb-6 text-rose-400">Shared Equity Mortgage Modeler</h2>
+    <form [formGroup]="fthbiForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+      
+      <!-- Purchase Details -->
+      <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg text-gray-200">Purchase Details</h3>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Home Purchase Price</label>
+          <input type="number" formControlName="purchasePrice" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Your Down Payment</label>
+          <input type="number" formControlName="downPayment" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+         <div>
+          <label class="block text-sm font-medium text-gray-300">Shared Equity Incentive (%)</label>
+          <select formControlName="incentivePercent" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+            <option [ngValue]="5">5% (Existing Home)</option>
+            <option [ngValue]="10">10% (New Construction)</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Mortgage Details -->
+      <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg text-gray-200">Mortgage Details</h3>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Mortgage Rate (%)</label>
+          <input type="number" step="0.01" formControlName="mortgageRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Amortization Period (Yrs)</label>
+          <input type="number" formControlName="amortizationPeriod" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+      </div>
+
+      <!-- Projection Details -->
+      <div class="space-y-4 bg-gray-900/40 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg text-gray-200">Sale Projection</h3>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Est. Appreciation per Year (%)</label>
+          <input type="number" step="0.1" formControlName="appreciationRate" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300">Years Until Property is Sold</label>
+          <input type="number" formControlName="yearsUntilSale" class="mt-1 block w-full bg-gray-700 rounded-md p-2">
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+    <h3 class="text-2xl font-semibold text-center mb-6 text-gray-200">Shared Equity vs. Traditional Mortgage</h3>
+    @if(fthbiForm.valid) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- With Incentive Scenario -->
+        <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-rose-500">
+          <h4 class="text-xl font-bold text-rose-400 text-center">With Shared Equity</h4>
+          <div class="space-y-3 text-sm mt-4">
+            <div class="flex justify-between items-center"><span class="text-gray-400">Incentive Amount:</span><span class="font-mono text-green-400">{{ incentiveAmount() | currency }}</span></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">Your Mortgage Loan:</span><span class="font-mono">{{ mortgageWithIncentive() | currency }}</span></div>
+            <div class="flex justify-between items-center text-lg font-semibold pt-2 border-t border-gray-700 mt-2"><span class="text-white">Monthly Payment:</span><span class="font-mono text-white">{{ paymentWithIncentive() | currency }}</span></div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-gray-700">
+             <h5 class="font-semibold text-center mb-2">At Sale in {{fthbiForm.value.yearsUntilSale}} Years</h5>
+             <div class="space-y-2 text-sm">
+                <div class="flex justify-between items-center"><span class="text-gray-400">Future Sale Price:</span><span class="font-mono">{{ futureSalePrice() | currency }}</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-400">Incentive Repayment:</span><span class="font-mono text-red-400">- {{ incentiveRepayment() | currency }}</span></div>
+             </div>
+          </div>
+        </div>
+
+        <!-- Without Incentive Scenario -->
+        <div class="bg-gray-900/50 rounded-lg p-6 border-t-4 border-gray-500">
+          <h4 class="text-xl font-bold text-gray-400 text-center">Traditional Mortgage</h4>
+          <div class="space-y-3 text-sm mt-4">
+            <div class="flex justify-between items-center"><span class="text-gray-400">Incentive Amount:</span><span class="font-mono">{{ 0 | currency }}</span></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">Your Mortgage Loan:</span><span class="font-mono">{{ mortgageWithoutIncentive() | currency }}</span></div>
+            <div class="flex justify-between items-center text-lg font-semibold pt-2 border-t border-gray-700 mt-2"><span class="text-white">Monthly Payment:</span><span class="font-mono text-white">{{ paymentWithoutIncentive() | currency }}</span></div>
+          </div>
+           <div class="mt-6 pt-4 border-t border-gray-700">
+             <h5 class="font-semibold text-center mb-2">At Sale in {{fthbiForm.value.yearsUntilSale}} Years</h5>
+             <div class="space-y-2 text-sm">
+                <div class="flex justify-between items-center"><span class="text-gray-400">Future Sale Price:</span><span class="font-mono">{{ futureSalePrice() | currency }}</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-400">Incentive Repayment:</span><span class="font-mono text-red-400">- {{ 0 | currency }}</span></div>
+             </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Summary -->
+      <div class="mt-8 text-center bg-gray-900/50 p-6 rounded-lg">
+        <h4 class="font-semibold text-lg text-white mb-2">Summary of Trade-Offs</h4>
+        <p class="text-gray-300">By using the shared equity incentive, your monthly mortgage payment is <strong class="text-green-400">{{ monthlySavings() | currency }} lower</strong>. However, you give up a portion of your home's future appreciation, resulting in <strong class="text-red-400">{{ (netGainWithoutIncentive() - netGainWithIncentive()) | currency }} less in net proceeds</strong> at the time of sale under this projection.</p>
+      </div>
+
+    } @else {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">Please fill out all fields to model this scenario.</p>
+      </div>
+    }
+  </section>
+</div>

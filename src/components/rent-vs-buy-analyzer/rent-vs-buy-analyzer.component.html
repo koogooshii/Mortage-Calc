@@ -1,0 +1,157 @@
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-8 h-8 text-orange-400">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
+            </svg>
+            Rent vs. Buy Analyzer
+        </h2>
+
+        <form [formGroup]="rentBuyForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Rent Inputs -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2">Renting Scenario</h3>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-400">Monthly Rent ($)</label>
+                    <input type="number" formControlName="monthlyRent"
+                        class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                </div>
+            </div>
+
+            <!-- Buy Inputs -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2">Buying Scenario</h3>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-400">Property Price ($)</label>
+                    <input type="number" formControlName="propertyPrice"
+                        class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-400">Down Payment ($)</label>
+                        <input type="number" formControlName="downPayment"
+                            class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-400">Interest Rate (%)</label>
+                        <input type="number" formControlName="interestRate" step="0.1"
+                            class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-400">Amortization (Years)</label>
+                    <input type="number" formControlName="loanTerm"
+                        class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-400">Property Tax (%)</label>
+                        <input type="number" formControlName="propertyTaxPercent" step="0.1"
+                            class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-400">Insurance (%)</label>
+                        <input type="number" formControlName="insurancePercent" step="0.1"
+                            class="w-full bg-gray-900/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (result(); as res) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Verdict Card -->
+        <div
+            class="md:col-span-3 bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-xl text-center relative overflow-hidden">
+            <!-- Background Gradient based on winner -->
+            <div class="absolute inset-0 opacity-10" [class.bg-emerald-500]="res.cheaperOption === 'rent'"
+                [class.bg-blue-500]="res.cheaperOption === 'buy'"></div>
+
+            <h3 class="text-xl font-semibold text-gray-300 mb-2 relative z-10">Financial Verdict (5-Year Outlook)</h3>
+
+            @if (res.cheaperOption === 'rent') {
+            <div class="text-4xl font-bold text-emerald-400 mb-2 relative z-10">Renting is Cheaper</div>
+            <p class="text-gray-400 relative z-10">
+                After 5 years, renting saves you <span class="text-white font-bold">{{ (res.netCostBuy5Years -
+                    res.netCostRent5Years) | currency:'USD':'symbol':'1.0-0' }}</span> in net costs.
+            </p>
+            } @else if (res.cheaperOption === 'buy') {
+            <div class="text-4xl font-bold text-blue-400 mb-2 relative z-10">Buying is Cheaper</div>
+            <p class="text-gray-400 relative z-10">
+                After 5 years, buying saves you <span class="text-white font-bold">{{ (res.netCostRent5Years -
+                    res.netCostBuy5Years) | currency:'USD':'symbol':'1.0-0' }}</span> in net costs.
+            </p>
+            } @else {
+            <div class="text-4xl font-bold text-yellow-400 mb-2 relative z-10">It's a Tie</div>
+            <p class="text-gray-400 relative z-10">The net costs are virtually identical over 5 years.</p>
+            }
+        </div>
+
+        <!-- Net Cost Comparison -->
+        <div class="md:col-span-2 bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-xl">
+            <h4 class="text-lg font-semibold text-gray-300 mb-6">5-Year Net Cost Comparison</h4>
+
+            <!-- Rent Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-400">Renting (Total Rent Paid)</span>
+                    <span class="text-white font-bold">{{ res.netCostRent5Years | currency:'USD':'symbol':'1.0-0'
+                        }}</span>
+                </div>
+                <div class="h-4 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <!-- Buy Bar -->
+            <div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-400">Buying (Total Costs - Equity)</span>
+                    <span class="text-white font-bold">{{ res.netCostBuy5Years | currency:'USD':'symbol':'1.0-0'
+                        }}</span>
+                </div>
+                <div class="h-4 bg-gray-700 rounded-full overflow-hidden flex">
+                    <!-- Cost Portion -->
+                    <div class="h-full bg-blue-500"
+                        [style.width.%]="(res.netCostBuy5Years / Math.max(res.netCostRent5Years, res.netCostBuy5Years)) * 100">
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    *Buying cost includes mortgage interest, taxes, and insurance, minus the <strong>{{
+                        res.equityBuilt5Years | currency:'USD':'symbol':'1.0-0' }}</strong> in equity you build.
+                </p>
+            </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-xl space-y-4">
+            <h4 class="text-lg font-semibold text-gray-300">Monthly Cashflow</h4>
+
+            <div class="p-3 bg-gray-900/40 rounded-lg">
+                <div class="text-sm text-gray-400">Rent Payment</div>
+                <div class="text-2xl font-bold text-white">{{ res.rent | currency:'USD':'symbol':'1.0-0' }}</div>
+            </div>
+
+            <div class="p-3 bg-gray-900/40 rounded-lg">
+                <div class="text-sm text-gray-400">Buy Payment (PITI)</div>
+                <div class="text-2xl font-bold text-white">{{ res.totalMonthlyCost | currency:'USD':'symbol':'1.0-0' }}
+                </div>
+                <div class="mt-2 pt-2 border-t border-gray-700 text-xs space-y-1">
+                    <div class="flex justify-between"><span>Mortgage</span> <span>{{ res.mortgagePayment |
+                            currency:'USD':'symbol':'1.0-0' }}</span></div>
+                    <div class="flex justify-between"><span>Tax/Ins</span> <span>{{ (res.totalMonthlyCost -
+                            res.mortgagePayment) | currency:'USD':'symbol':'1.0-0' }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

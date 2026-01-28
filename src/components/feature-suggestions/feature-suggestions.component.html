@@ -1,0 +1,86 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-12">
+
+  <!-- Header -->
+  <header class="text-center">
+    <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">App Roadmap & Features</h2>
+    <p class="mt-4 text-lg leading-8 text-gray-300">
+      Follow our development journey and see what's next for the Mortgage Toolkit.
+    </p>
+    <div class="mt-4 inline-block px-4 py-1 text-sm font-semibold text-green-200 bg-green-800/50 rounded-full">
+      Current Version: {{ version }}
+    </div>
+  </header>
+
+  <!-- Changelog -->
+  <section>
+    <h3 class="text-2xl font-semibold text-gray-200 mb-6 border-b border-gray-600 pb-2">Changelog</h3>
+    <div class="space-y-8">
+      @for (entry of changelog; track entry.version) {
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div class="flex-shrink-0 sm:w-48">
+            <h4 class="text-xl font-bold text-green-400">Version {{ entry.version }}</h4>
+            <p class="text-sm text-gray-400">{{ entry.date }}</p>
+          </div>
+          <ul class="list-disc list-inside text-gray-300 space-y-2">
+            @for (note of entry.notes; track note) {
+              <li>{{ note }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Future Roadmap -->
+  <section>
+    <h3 class="text-2xl font-semibold text-gray-200 mb-6 border-b border-gray-600 pb-2">Future Roadmap</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (feature of roadmap; track feature.title) {
+        <div class="bg-gray-900/50 rounded-lg p-6 flex flex-col items-start border border-gray-700">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="p-2 bg-gray-700 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                @switch (feature.icon) {
+                  @case('swirl') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75v16.5M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c-4.97 0-9 4.03-9 9s4.03 9 9 9" />
+                  }
+                  @case('truck') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5h10.5a1.125 1.125 0 001.125-1.125V6.75a1.125 1.125 0 00-1.125-1.125H3.375A1.125 1.125 0 002.25 6.75v10.5a1.125 1.125 0 001.125 1.125z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V6.75a1.5 1.5 0 00-1.5-1.5h-1.5a1.5 1.5 0 00-1.5 1.5V9m1.5-3V9m0 0h-3" />
+                  }
+                  @case('gift') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.5v16.5m0-16.5c-2.488 0-4.5 2.012-4.5 4.5 0 .828.22 1.594.613 2.25M12 4.5c2.488 0 4.5 2.012 4.5 4.5 0 .828-.22 1.594-.613 2.25M12 4.5v16.5m-4.5-16.5h9" />
+                  }
+                  @case ('receipt-percent') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 0h5.25m-5.25 0h5.25m-5.25 0h5.25M3 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25-2.25H3a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 013 4.5z" />
+                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 11.25a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 11.25a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                  }
+                  @case ('building-library') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                  }
+                  @case ('key') {
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                  }
+                }
+              </svg>
+            </div>
+            <h4 class="text-lg font-semibold text-white">{{ feature.title }}</h4>
+          </div>
+          <p class="text-gray-400 text-sm flex-grow">{{ feature.description }}</p>
+          <div class="mt-4 px-3 py-1 text-xs font-medium rounded-full"
+            [class.bg-gray-700]="feature.status === 'Not Started'"
+            [class.text-gray-300]="feature.status === 'Not Started'"
+            [class.bg-yellow-800/50]="feature.status === 'In Progress'"
+            [class.text-yellow-300]="feature.status === 'In Progress'"
+            [class.bg-green-800/50]="feature.status === 'Done'"
+            [class.text-green-300]="feature.status === 'Done'">
+            {{ feature.status }}
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+</div>

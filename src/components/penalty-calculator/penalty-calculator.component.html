@@ -1,0 +1,91 @@
+<div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-gray-700 space-y-8 max-w-4xl mx-auto">
+    
+  <!-- Form Section -->
+  <section>
+    <form [formGroup]="penaltyForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+      <div>
+        <label for="currentBalance" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Current Mortgage Balance</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The outstanding principal amount you still owe on your mortgage.</div>
+            </div>
+        </label>
+        <input type="number" id="currentBalance" formControlName="currentBalance" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <p class="mt-1 text-xs text-gray-400">The amount you still owe on your mortgage.</p>
+      </div>
+      <div>
+        <label for="currentRate" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Your Current Interest Rate (%)</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The contractual interest rate on your existing mortgage.</div>
+            </div>
+        </label>
+        <input type="number" id="currentRate" formControlName="currentRate" step="0.01" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <p class="mt-1 text-xs text-gray-400">The interest rate on your existing mortgage contract.</p>
+      </div>
+      <div>
+        <label for="remainingMonths" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Months Remaining in Term</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The number of months left on your current mortgage contract before it's up for renewal.</div>
+            </div>
+        </label>
+        <input type="number" id="remainingMonths" formControlName="remainingMonths" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <p class="mt-1 text-xs text-gray-400">How many months are left until your current term expires.</p>
+      </div>
+      <div>
+        <label for="postedRate" class="block text-sm font-medium text-gray-300 flex items-center gap-1">
+            <span>Lender's Posted Rate (%)</span>
+             <div class="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94zM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd" /></svg>
+                <div class="absolute bottom-full left-1/2 z-20 mb-2 w-72 -translate-x-1/2 transform rounded-lg bg-gray-900 border border-gray-700 p-3 text-center text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">The interest rate your lender publicly advertises for a new mortgage with a term length similar to your remaining time. You must ask your lender for this specific rate for an accurate IRD calculation.</div>
+            </div>
+        </label>
+        <input type="number" id="postedRate" formControlName="postedRate" step="0.01" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <p class="mt-1 text-xs text-gray-400">The rate your lender currently offers for a term equal to your remaining time. Ask your lender for this.</p>
+      </div>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  <section class="mt-8 pt-8 border-t border-gray-700/50">
+    <h3 class="text-2xl font-semibold text-center mb-6 text-gray-200">Penalty Calculation</h3>
+    @if(penaltyForm.valid) {
+      <div class="bg-gray-900/50 rounded-lg p-6 space-y-6">
+        <!-- Main Result -->
+        <div class="text-center">
+          <p class="text-lg text-gray-300">Estimated Penalty</p>
+          <p class="text-5xl font-extrabold text-indigo-400 tracking-tight my-2">{{ finalPenalty() | currency:'USD':'symbol':'1.2-2' }}</p>
+          <p class="text-sm text-gray-400">Lenders typically charge the higher of the two calculations below.</p>
+        </div>
+        
+        <!-- Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-700/50">
+          <!-- Three Months Interest -->
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="font-semibold text-white mb-2">Three Months' Interest</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ threeMonthPenalty() | currency }}</p>
+            <p class="text-xs text-gray-500 mt-2">This is a simple calculation of what you would have paid in interest over a three-month period.</p>
+          </div>
+          <!-- IRD -->
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="font-semibold text-white mb-2">Interest Rate Differential (IRD)</h4>
+            <p class="text-2xl font-bold text-gray-300">{{ irdPenalty() | currency }}</p>
+            <p class="text-xs text-gray-500 mt-2">This estimates the interest the lender loses by not having your money for the rest of the term, based on the difference between your rate and their current rates.</p>
+          </div>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 pt-4">
+          <p><strong>Disclaimer:</strong> This is an estimate for informational purposes only. Your lender may use a more complex formula. Contact your financial institution for the exact penalty amount.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center py-8 px-4 bg-gray-900/50 rounded-lg">
+        <p class="text-gray-400">Please fill out all the fields to calculate the estimated penalty.</p>
+      </div>
+    }
+  </section>
+</div>

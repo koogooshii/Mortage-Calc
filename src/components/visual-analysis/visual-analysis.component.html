@@ -1,0 +1,28 @@
+
+<section class="space-y-6">
+    <app-loan-balance-chart
+        [schedule]="schedule()"
+        [baselineSchedule]="baselineSchedule()"
+        [fullSchedule]="fullSchedule()"
+        [loanAmount]="loanAmount()"
+        [color]="color()"
+    />
+    @if(summary(); as s) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <app-piti-pie-chart
+                [firstPaymentPrincipal]="firstPaymentPrincipal()"
+                [firstPaymentInterest]="firstPaymentInterest()"
+                [propertyTax]="annualPropertyTax()"
+                [homeInsurance]="annualHomeInsurance()"
+                [pmi]="monthlyPMI()"
+                [extraMonthlyPayment]="extraMonthlyPayment()"
+                [color]="color()"
+            />
+            <app-equity-chart
+                [fullSchedule]="fullSchedule()"
+                [loanAmount]="loanAmount()"
+                [color]="color()"
+            />
+        </div>
+    }
+</section>
