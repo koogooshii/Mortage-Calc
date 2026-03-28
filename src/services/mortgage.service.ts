@@ -224,32 +224,27 @@ export class MortgageService {
     let remainingBalance = loanAmount;
     let paymentNumber = 0;
 
-    const initialDate = new Date(startDate);
-    const validStartDate = new Date(
-      initialDate.valueOf() + initialDate.getTimezoneOffset() * 60 * 1000
-    );
+    const getNormalizedDate = (d) => {
+      const date = new Date(d);
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    };
+
+    const validStartDateTime = getNormalizedDate(startDate);
+    const validStartDate = new Date(validStartDateTime);
 
     let totalPaid = 0;
     let totalInterest = 0;
     let totalExtraPayments = 0;
 
-    const defermentDates = new Set(
-      deferments.map((d) => {
-        const deferDate = new Date(d);
-        return new Date(
-          deferDate.valueOf() + deferDate.getTimezoneOffset() * 60 * 1000
-        ).toDateString();
-      })
+    const defermentTimes = new Set(
+      deferments.map((d) => getNormalizedDate(d))
     );
 
-    const nextRecurringPaymentDates = recurringPayments.map(p => {
-      const d = p.startDate ? new Date(p.startDate) : new Date(validStartDate.getTime());
-      return new Date(d.valueOf() + d.getTimezoneOffset() * 60 * 1000);
+    const nextRecurringPaymentTimes = recurringPayments.map(p => {
+      return getNormalizedDate(p.startDate || startDate);
     });
-    const recurringPaymentEndDates = recurringPayments.map(p => {
-      if (!p.endDate) return null;
-      const d = new Date(p.endDate);
-      return new Date(d.valueOf() + d.getTimezoneOffset() * 60 * 1000);
+    const recurringPaymentEndTimes = recurringPayments.map(p => {
+      return p.endDate ? getNormalizedDate(p.endDate) : null;
     });
 
     const maxPayments = limitToTerm ? termInYears * paymentsPerYear : loanTerm * paymentsPerYear * 2; // Allow running long for payoffs
@@ -303,7 +298,7 @@ export class MortgageService {
       const interestForPeriod =
         remainingBalance * (annualInterestRate / paymentsPerYear);
 
-      const isDeferred = defermentDates.has(currentDate.toDateString());
+      const isDeferred = defermentTimes.has(getNormalizedDate(currentDate));
 
       if (isDeferred) {
         remainingBalance += interestForPeriod;
@@ -316,6 +311,7 @@ export class MortgageService {
           scheduledExtraPayment: 0,
           adHocPayment: 0,
           totalPayment: 0,
+          totalPrincipal: 0,
           remainingBalance,
           isDeferred: true,
         });
@@ -333,26 +329,39 @@ export class MortgageService {
       // Calculate recurring extra payments
       recurringPayments.forEach((p, index) => {
         if (p.amount <= 0) return;
-        const endDate = recurringPaymentEndDates[index];
-        let nextDate = nextRecurringPaymentDates[index];
-        if (endDate && nextDate > endDate) return;
-        while (nextDate <= currentDate) {
-          if (endDate && nextDate > endDate) break;
-          if (nextDate > previousDate) scheduledExtraPayment += p.amount;
-          this.advanceDateByFrequency(nextDate, p.frequency, validStartDate);
+        const endTime = recurringPaymentEndTimes[index];
+        let nextTime = nextRecurringPaymentTimes[index];
+        const currentTime = getNormalizedDate(currentDate);
+        const previousTime = getNormalizedDate(previousDate);
+
+        if (endTime && nextTime > endTime) return;
+
+        while (nextTime <= currentTime) {
+          if (endTime && nextTime > endTime) break;
+          // Include if it falls after the previous payment or exactly on the start date for payment 1
+          if (nextTime > previousTime || (paymentNumber === 1 && nextTime === previousTime)) {
+            scheduledExtraPayment += p.amount;
+          }
+
+          const d = new Date(nextTime);
+          this.advanceDateByFrequency(d, p.frequency, validStartDate);
+          nextTime = getNormalizedDate(d);
         }
-        nextRecurringPaymentDates[index] = nextDate;
+        nextRecurringPaymentTimes[index] = nextTime;
       });
 
-      // Calculate one-time extra payments (optimized)
+      // Calculate one-time extra payments
       while (
-        oneTimePaymentIndex < sortedOneTimePayments.length &&
-        new Date(new Date(sortedOneTimePayments[oneTimePaymentIndex].date).valueOf() + new Date(sortedOneTimePayments[oneTimePaymentIndex].date).getTimezoneOffset() * 60 * 1000) <= currentDate
+        oneTimePaymentIndex < sortedOneTimePayments.length
       ) {
         const p = sortedOneTimePayments[oneTimePaymentIndex];
-        const oneTimeDate = new Date(p.date);
-        const paymentDate = new Date(oneTimeDate.valueOf() + oneTimeDate.getTimezoneOffset() * 60 * 1000);
-        if (paymentDate > previousDate) {
+        const paymentTime = getNormalizedDate(p.date);
+        const currentTime = getNormalizedDate(currentDate);
+        const previousTime = getNormalizedDate(previousDate);
+
+        if (paymentTime > currentTime) break;
+
+        if (paymentTime > previousTime || (paymentNumber === 1 && paymentTime === previousTime)) {
           scheduledExtraPayment += p.amount;
         }
         oneTimePaymentIndex++;
@@ -378,6 +387,7 @@ export class MortgageService {
           scheduledExtraPayment,
           adHocPayment,
           totalPayment,
+          totalPrincipal: principalToPay + extraPrincipalPaid,
           remainingBalance: 0,
           isDeferred: false,
         });
@@ -398,6 +408,7 @@ export class MortgageService {
           scheduledExtraPayment,
           adHocPayment,
           totalPayment,
+          totalPrincipal: principalFromPayment + extraPrincipalPaid,
           remainingBalance,
           isDeferred: false,
         });

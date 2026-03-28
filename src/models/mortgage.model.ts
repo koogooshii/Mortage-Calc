@@ -92,6 +92,7 @@ export interface AmortizationEntry {
 
   principal: number;
   interest: number;
+  totalPrincipal: number;
   scheduledExtraPayment: number;
   adHocPayment: number;
   totalPayment: number;

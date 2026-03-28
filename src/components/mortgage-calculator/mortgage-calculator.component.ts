@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal, effect, computed, input, output, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { MortgageService } from '../../services/mortgage.service';
 import { AmortizationEntry, MortgageSummary, OneTimePayment, RecurringPayment, PaymentFrequency, RecurringPaymentFrequency, RateChange } from '../../models/mortgage.model';
 import { AmortizationTableComponent } from '../amortization-table/amortization-table.component';
@@ -17,7 +17,7 @@ export type { ScenarioState };
 @Component({
   selector: 'app-mortgage-calculator',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CurrencyPipe, DatePipe, AmortizationTableComponent, AiAdvisorComponent, VisualAnalysisComponent, AiGoalSeekerComponent],
+  imports: [ReactiveFormsModule, FormsModule, CurrencyPipe, DatePipe, DecimalPipe, AmortizationTableComponent, AiAdvisorComponent, VisualAnalysisComponent, AiGoalSeekerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mortgage-calculator.component.html',
 })
@@ -39,20 +39,23 @@ export class MortgageCalculatorComponent {
   graphsVisible = input<boolean>(false);
 
   // Output for refinance mode
-  summaryUpdated = output<{ 
-    summary: MortgageSummary | null; 
+  summaryUpdated = output<{
+    summary: MortgageSummary | null;
     formValues: any;
     extraMonthlyPayment: number;
     recurringPayments: RecurringPayment[];
   }>();
-  
+
   colorClasses = computed(() => ({
     text: `text-${this.color()}-400`,
     focusRing: `focus:ring-${this.color()}-500`,
     focusBorder: `focus:border-${this.color()}-500`,
   }));
-  
+
   private accentColors: { [key: string]: string } = {
+    indigo: '#6366f1',
+    rose: '#f43f5e',
+    amber: '#f59e0b',
     cyan: '#22d3ee',
     fuchsia: '#d946ef',
     yellow: '#eab308',
@@ -76,16 +79,19 @@ export class MortgageCalculatorComponent {
   adHocPayments = signal<{ [paymentNumber: number]: number }>({});
   rateChanges = signal<RateChange[]>([]);
 
+  // Year selection for prepayments
+  selectedYears = signal<number[]>([]);
+
   // Signals for calculation results
   summary = signal<MortgageSummary | null>(null);
   amortizationSchedule = signal<AmortizationEntry[]>([]);
   fullAmortizationSchedule = signal<AmortizationEntry[]>([]);
   baselineSchedule = signal<AmortizationEntry[]>([]);
-  
+
   amortizationScope = signal<'term' | 'full'>('term');
-  displaySchedule = computed(() => this.amortizationScope() === 'term' 
-      ? this.amortizationSchedule() 
-      : this.fullAmortizationSchedule());
+  displaySchedule = computed(() => this.amortizationScope() === 'term'
+    ? this.amortizationSchedule()
+    : this.fullAmortizationSchedule());
 
   yearlyExtraPayments = computed(() => {
     const summary = this.summary();
@@ -97,6 +103,7 @@ export class MortgageCalculatorComponent {
 
   showAdvisor = signal(false);
   showGraphs = signal(false);
+  activeTab = signal<'basic' | 'extra' | 'costs'>('basic');
   isGraphsVisible = computed(() => this.hideHeader() ? this.graphsVisible() : this.showGraphs());
 
   visualAnalysisComponent = viewChild(VisualAnalysisComponent);
@@ -114,7 +121,7 @@ export class MortgageCalculatorComponent {
     if (!loanAmount || !interestRate || !totalLoanTerm) return 0;
     return this.mortgageService.calculateMonthlyPayment(loanAmount, interestRate / 100, totalLoanTerm);
   });
-  
+
   constructor() {
     // Sync state from parent input to local form/signals
     effect(() => {
@@ -131,7 +138,7 @@ export class MortgageCalculatorComponent {
 
     // When local state changes, emit it to the parent
     this.mortgageForm.valueChanges.pipe(debounceTime(300), distinctUntilChanged(this.isEqual)).subscribe(formValues => this.emitStateChange());
-    
+
     effect(() => {
       this.extraMonthlyPayment(); this.annualPaymentIncreasePercentage();
       this.recurringPayments(); this.oneTimePayments(); this.deferments();
@@ -164,9 +171,9 @@ export class MortgageCalculatorComponent {
       this.fullAmortizationSchedule.set(fullSchedule);
       this.summary.set(summary);
       this.baselineSchedule.set(baselineSchedule);
-      
-      this.summaryUpdated.emit({ 
-        summary, 
+
+      this.summaryUpdated.emit({
+        summary,
         formValues: form,
         extraMonthlyPayment: state.extraMonthlyPayment,
         recurringPayments: state.recurringPayments
@@ -217,7 +224,7 @@ export class MortgageCalculatorComponent {
   exportAsCsv() {
     const schedule = this.displaySchedule();
     if (schedule.length === 0) return;
-    const headers = ['#','Date','Payment','Scheduled Extra','Ad-Hoc Extra','Principal','Interest','Balance'];
+    const headers = ['#', 'Date', 'Payment', 'Scheduled Extra', 'Ad-Hoc Extra', 'Principal', 'Interest', 'Balance'];
     const csvRows = [headers.join(',')];
     schedule.forEach(e => csvRows.push([e.paymentNumber, e.paymentDate.toISOString().split('T')[0], e.payment.toFixed(2), e.scheduledExtraPayment.toFixed(2), e.adHocPayment.toFixed(2), e.principal.toFixed(2), e.interest.toFixed(2), e.remainingBalance.toFixed(2)].join(',')));
     const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
@@ -233,8 +240,42 @@ export class MortgageCalculatorComponent {
 
   updateInterestRate(event: Event) { this.mortgageForm.controls.interestRate.setValue(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraMonthlyPayment(event: Event) { this.extraMonthlyPayment.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
+  updateExtraMonthlyPaymentDirect(amount: number) { this.extraMonthlyPayment.set(amount); }
   updateAnnualPaymentIncrease(event: Event) { this.annualPaymentIncreasePercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
-  
+
+  // Year selection helpers for prepayments
+  getYearRange(): number[] {
+    const years = this.totalLoanTermInYears();
+    const maxYears = Math.ceil(years) || 30;
+    return Array.from({ length: Math.min(maxYears, 30) }, (_, i) => i + 1);
+  }
+
+  isYearSelected(year: number): boolean {
+    return this.selectedYears().includes(year);
+  }
+
+  toggleYear(year: number) {
+    this.selectedYears.update(years => {
+      if (years.includes(year)) {
+        return years.filter(y => y !== year);
+      } else {
+        return [...years, year].sort((a, b) => a - b);
+      }
+    });
+  }
+
+  selectAllYears() {
+    this.selectedYears.set(this.getYearRange());
+  }
+
+  clearAllYears() {
+    this.selectedYears.set([]);
+  }
+
+  getSelectedYears(): number[] {
+    return this.selectedYears();
+  }
+
   addRecurringPayment() { this.recurringPayments.update(p => [...p, { amount: 100, frequency: 'monthly' }]); }
   removeRecurringPayment(i: number) { this.recurringPayments.update(p => p.filter((_, idx) => i !== idx)); }
   updateRecurringPayment<K extends keyof RecurringPayment>(i: number, field: K, event: Event) {

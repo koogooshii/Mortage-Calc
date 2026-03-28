@@ -48,7 +48,7 @@ export class AppComponent {
   mode = signal<CalculatorMode>('compare');
 
   scenarios = signal<ScenarioState[]>([]);
-  scenarioColors = ['cyan', 'fuchsia', 'yellow'];
+  scenarioColors = ['indigo', 'rose', 'amber'];
 
   pageTitle = computed(() => {
     const currentMode = this.mode();

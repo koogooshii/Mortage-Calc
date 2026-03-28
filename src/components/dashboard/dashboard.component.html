@@ -1,15 +1,15 @@
 <div class="space-y-8">
   <div class="text-center">
-    <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Mortgage Toolkit</h2>
-    <p class="mt-4 text-lg leading-8 text-gray-300">A suite of powerful tools to help you analyze, compare, and manage
+    <h2 class="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">Mortgage Toolkit</h2>
+    <p class="mt-4 text-lg leading-8 text-slate-600">A suite of powerful tools to help you analyze, compare, and manage
       your mortgage.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @for (tool of tools; track tool.id) {
     <div (click)="selectMode(tool.id)"
-      class="relative group bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700 transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1"
-      [class]="'hover:border-' + tool.color + '-500'">
+      class="relative group bg-white rounded-xl shadow-md p-6 border border-slate-200 transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1 hover:shadow-lg"
+      [class]="'hover:border-' + tool.color + '-400'">
 
       <div
         class="absolute top-0 right-0 h-24 w-24 text-gray-700/30 transition-all duration-300 transform group-hover:scale-150"
@@ -216,7 +216,7 @@
           </div>
           <h3 class="text-xl font-semibold" [class]="'text-' + tool.color + '-400'">{{ tool.title }}</h3>
         </div>
-        <p class="text-gray-300 text-sm leading-relaxed">{{ tool.description }}</p>
+        <p class="text-slate-600 text-sm leading-relaxed">{{ tool.description }}</p>
       </div>
     </div>
     }
