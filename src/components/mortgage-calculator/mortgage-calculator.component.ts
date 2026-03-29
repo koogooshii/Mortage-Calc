@@ -331,6 +331,28 @@ export class MortgageCalculatorComponent {
     this.emitStateChange();
   }
 
+  // Handle direct loan amount change - reverse calculate down payment
+  updateLoanAmount(event: Event) {
+    const loanAmount = parseFloat((event.target as HTMLInputElement).value) || 0;
+    const purchasePrice = this.mortgageForm.value.purchasePrice || 0;
+
+    if (purchasePrice > 0) {
+      // Calculate down payment based on loan amount
+      const downPayment = Math.max(0, purchasePrice - loanAmount);
+      const downPaymentPercentage = (downPayment / purchasePrice) * 100;
+
+      this.mortgageForm.patchValue({
+        loanAmount,
+        downPayment,
+        downPaymentPercentage
+      }, { emitEvent: false });
+    } else {
+      // Just update the loan amount
+      this.mortgageForm.patchValue({ loanAmount }, { emitEvent: false });
+    }
+    this.emitStateChange();
+  }
+
   updateInterestRate(event: Event) { this.mortgageForm.controls.interestRate.setValue(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraMonthlyPayment(event: Event) { this.extraMonthlyPayment.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraMonthlyPaymentDirect(amount: number) { this.extraMonthlyPayment.set(amount); }

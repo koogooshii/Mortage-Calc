@@ -97,8 +97,9 @@
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                                <input type="number" formControlName="loanAmount" readonly
-                                    class="w-full pl-7 pr-3 py-2.5 border border-slate-300 rounded-xl text-slate-800 bg-slate-50">
+                                <input type="number" [value]="mortgageForm.value.loanAmount"
+                                    (input)="updateLoanAmount($event)"
+                                    class="w-full pl-7 pr-3 py-2.5 border border-slate-300 rounded-xl text-slate-800 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
                             </div>
                         </div>
                         <div>
