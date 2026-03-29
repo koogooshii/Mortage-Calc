@@ -19,6 +19,83 @@ import {
 })
 export class MortgageService {
 
+  // Canadian CMHC insurance premium rates (as percentage of mortgage amount)
+  // Based on down payment percentage
+  private readonly CMHC_RATES = {
+    // Down payment 5% - 9.99%
+    '4': 0.04,  // 4.00%
+    // Down payment 10% - 14.99%
+    '3': 0.031, // 3.10%
+    // Down payment 15% - 19.99%
+    '2.8': 0.028, // 2.80%
+  };
+
+  /**
+   * Calculate CMHC (Canada Mortgage and Housing Corporation) insurance premium.
+   * Required when down payment is less than 20%.
+   * 
+   * @param purchasePrice - The total purchase price of the property
+   * @param downPayment - The down payment amount
+   * @returns The CMHC insurance premium amount (0 if down payment >= 20%)
+   */
+  public calculateCmhcInsurance(purchasePrice: number, downPayment: number): number {
+    if (purchasePrice <= 0 || downPayment <= 0) return 0;
+
+    const downPaymentPercentage = (downPayment / purchasePrice) * 100;
+
+    // No CMHC required if down payment is 20% or more
+    if (downPaymentPercentage >= 20) {
+      return 0;
+    }
+
+    const loanAmount = purchasePrice - downPayment;
+    let rate = 0.04; // Default highest rate for smallest down payments
+
+    // Determine CMHC rate based on down payment percentage
+    if (downPaymentPercentage >= 15) {
+      rate = 0.028; // 2.80%
+    } else if (downPaymentPercentage >= 10) {
+      rate = 0.031; // 3.10%
+    } else if (downPaymentPercentage >= 5) {
+      rate = 0.04; // 4.00%
+    }
+
+    return loanAmount * rate;
+  }
+
+  /**
+   * Calculate the minimum down payment required for a purchase price.
+   * Canadian minimum is 5% for purchase prices up to $500,000,
+   * and 10% for amounts above $500,000 (with 5% on first $500k).
+   */
+  public calculateMinimumDownPayment(purchasePrice: number): number {
+    if (purchasePrice <= 0) return 0;
+
+    if (purchasePrice <= 500000) {
+      return purchasePrice * 0.05; // 5% minimum
+    } else {
+      // 5% on first $500,000 + 10% on the rest
+      const first500k = 500000 * 0.05;
+      const remaining = (purchasePrice - 500000) * 0.10;
+      return first500k + remaining;
+    }
+  }
+
+  /**
+   * Get the CMHC rate description for a given down payment percentage.
+   */
+  public getCmhcRateDescription(downPaymentPercentage: number): string {
+    if (downPaymentPercentage >= 20) {
+      return 'No CMHC required';
+    } else if (downPaymentPercentage >= 15) {
+      return '2.80% CMHC premium';
+    } else if (downPaymentPercentage >= 10) {
+      return '3.10% CMHC premium';
+    } else {
+      return '4.00% CMHC premium';
+    }
+  }
+
   public generateScheduleAndSummary(params: MortgageParams): {
     schedule: AmortizationEntry[];
     summary: MortgageSummary;

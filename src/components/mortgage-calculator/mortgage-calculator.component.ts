@@ -66,10 +66,32 @@ export class MortgageCalculatorComponent {
 
   // Form Group for core mortgage parameters
   mortgageForm = this.fb.group({
+    purchasePrice: [0], downPayment: [0], downPaymentPercentage: [0],
     loanAmount: [0], interestRate: [0], loanTerm: [0], loanTermMonths: [0],
     termInYears: [0], startDate: [''], paymentFrequency: ['monthly' as PaymentFrequency],
     rateType: ['fixed' as 'fixed' | 'variable'], annualPropertyTax: [0],
     annualHomeInsurance: [0], monthlyPMI: [0],
+  });
+
+  // Computed signal for CMHC insurance
+  cmhcInsurance = computed(() => {
+    const form = this.state().formValues;
+    return this.mortgageService.calculateCmhcInsurance(form.purchasePrice ?? 0, form.downPayment ?? 0);
+  });
+
+  // Computed signal for down payment percentage
+  calculatedDownPaymentPercentage = computed(() => {
+    const form = this.state().formValues;
+    const purchasePrice = form.purchasePrice ?? 0;
+    const downPayment = form.downPayment ?? 0;
+    if (purchasePrice <= 0) return 0;
+    return (downPayment / purchasePrice) * 100;
+  });
+
+  // Computed signal for loan amount with CMHC
+  loanAmountWithCmhc = computed(() => {
+    const form = this.state().formValues;
+    return (form.loanAmount ?? 0) + this.cmhcInsurance();
   });
 
   // Signals for dynamic extra payments and deferments
@@ -251,6 +273,62 @@ export class MortgageCalculatorComponent {
 
   onAdHocPaymentChange({ paymentNumber, amount }: { paymentNumber: number; amount: number }) {
     this.adHocPayments.update(p => ({ ...p, [paymentNumber]: amount > 0 ? amount : undefined }));
+  }
+
+  // Purchase price and down payment handlers
+  updatePurchasePrice(event: Event) {
+    const purchasePrice = parseFloat((event.target as HTMLInputElement).value) || 0;
+    const form = this.mortgageForm;
+    const currentDownPayment = form.value.downPayment || 0;
+    const currentDownPaymentPercentage = form.value.downPaymentPercentage || 0;
+
+    // If user changes purchase price, recalculate loan amount based on down payment
+    // Or if down payment percentage is set, use that
+    if (currentDownPaymentPercentage > 0) {
+      const newDownPayment = purchasePrice * (currentDownPaymentPercentage / 100);
+      const newLoanAmount = purchasePrice - newDownPayment;
+      form.patchValue({
+        purchasePrice,
+        downPayment: newDownPayment,
+        loanAmount: newLoanAmount
+      }, { emitEvent: false });
+    } else {
+      // Keep current down payment, recalculate loan amount
+      const newLoanAmount = purchasePrice - currentDownPayment;
+      form.patchValue({
+        purchasePrice,
+        loanAmount: Math.max(0, newLoanAmount)
+      }, { emitEvent: false });
+    }
+    this.emitStateChange();
+  }
+
+  updateDownPayment(event: Event) {
+    const downPayment = parseFloat((event.target as HTMLInputElement).value) || 0;
+    const purchasePrice = this.mortgageForm.value.purchasePrice || 0;
+    const downPaymentPercentage = purchasePrice > 0 ? (downPayment / purchasePrice) * 100 : 0;
+    const loanAmount = Math.max(0, purchasePrice - downPayment);
+
+    this.mortgageForm.patchValue({
+      downPayment,
+      downPaymentPercentage,
+      loanAmount
+    }, { emitEvent: false });
+    this.emitStateChange();
+  }
+
+  updateDownPaymentPercentage(event: Event) {
+    const downPaymentPercentage = parseFloat((event.target as HTMLInputElement).value) || 0;
+    const purchasePrice = this.mortgageForm.value.purchasePrice || 0;
+    const downPayment = purchasePrice * (downPaymentPercentage / 100);
+    const loanAmount = Math.max(0, purchasePrice - downPayment);
+
+    this.mortgageForm.patchValue({
+      downPaymentPercentage,
+      downPayment,
+      loanAmount
+    }, { emitEvent: false });
+    this.emitStateChange();
   }
 
   updateInterestRate(event: Event) { this.mortgageForm.controls.interestRate.setValue(parseFloat((event.target as HTMLInputElement).value) || 0); }

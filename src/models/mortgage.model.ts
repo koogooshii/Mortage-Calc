@@ -46,10 +46,16 @@ export interface MortgageParams {
   rateType: 'fixed' | 'variable';
   rateChanges: RateChange[];
   annualPaymentIncreasePercentage?: number;
+  // Purchase price and down payment (Canadian)
+  purchasePrice?: number;
+  downPayment?: number;
+  downPaymentPercentage?: number;
   // New PITI fields
   annualPropertyTax?: number;
   annualHomeInsurance?: number;
   monthlyPMI?: number;
+  // CMHC insurance (calculated from down payment)
+  cmhcInsuranceAmount?: number;
 }
 
 export interface MortgageSummary {
@@ -83,6 +89,13 @@ export interface MortgageSummary {
   baselineTotalInterestOverTerm: number;
   baselineTotalLifetimeCost: number;
   baselineTotalCostOverTerm: number;
+  // Canadian purchase price fields
+  purchasePrice?: number;
+  downPayment?: number;
+  downPaymentPercentage?: number;
+  cmhcInsuranceAmount?: number;
+  totalCmhcPaid?: number;
+  loanAmountWithCmhc?: number;
 }
 
 export interface AmortizationEntry {

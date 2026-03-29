@@ -17,9 +17,18 @@ export class ScenarioPersistenceService {
   }
 
   public getDefaultScenario(): ScenarioState {
+    // Default: $400,000 purchase price with 20% down payment = $320,000 loan
+    const defaultPurchasePrice = 400000;
+    const defaultDownPaymentPercentage = 20;
+    const defaultDownPayment = defaultPurchasePrice * (defaultDownPaymentPercentage / 100);
+    const defaultLoanAmount = defaultPurchasePrice - defaultDownPayment;
+
     return {
       formValues: {
-        loanAmount: 234000,
+        purchasePrice: defaultPurchasePrice,
+        downPayment: defaultDownPayment,
+        downPaymentPercentage: defaultDownPaymentPercentage,
+        loanAmount: defaultLoanAmount,
         interestRate: 3.85,
         loanTerm: 25,
         loanTermMonths: 0,

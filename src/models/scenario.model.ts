@@ -3,6 +3,9 @@ import { OneTimePayment, RecurringPayment, PaymentFrequency, RateChange } from '
 
 export interface ScenarioState {
   formValues: {
+    purchasePrice: number;
+    downPayment: number;
+    downPaymentPercentage: number;
     loanAmount: number;
     interestRate: number;
     loanTerm: number;
