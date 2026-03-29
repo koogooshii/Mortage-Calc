@@ -25,6 +25,40 @@ export class AmortizationTableComponent {
 
   viewMode = signal<'detailed' | 'monthly' | 'yearly'>('detailed');
 
+  // Detect payment increases by comparing consecutive payments
+  paymentIncreaseMap = computed(() => {
+    const schedule = this.schedule();
+    const increaseMap: { [paymentNumber: number]: { increase: boolean, percentage: number } } = {};
+
+    if (!schedule || schedule.length < 2) return increaseMap;
+
+    let previousPayment = schedule[0].payment;
+
+    for (let i = 1; i < schedule.length; i++) {
+      const currentPayment = schedule[i].payment;
+      if (currentPayment > previousPayment) {
+        const percentage = ((currentPayment - previousPayment) / previousPayment) * 100;
+        increaseMap[schedule[i].paymentNumber] = {
+          increase: true,
+          percentage: Math.round(percentage * 10) / 10
+        };
+      }
+      previousPayment = currentPayment;
+    }
+
+    return increaseMap;
+  });
+
+  isPaymentIncrease(paymentNumber: number): boolean {
+    const map = this.paymentIncreaseMap();
+    return map[paymentNumber]?.increase || false;
+  }
+
+  getIncreasePercentage(paymentNumber: number): number {
+    const map = this.paymentIncreaseMap();
+    return map[paymentNumber]?.percentage || 0;
+  }
+
   yearlySchedule = computed<AggregatedEntry[]>(() => {
     const schedule = this.schedule();
     if (!schedule || schedule.length === 0) return [];
@@ -55,7 +89,7 @@ export class AmortizationTableComponent {
   monthlySchedule = computed<AggregatedEntry[]>(() => {
     const schedule = this.schedule();
     if (!schedule || schedule.length === 0) return [];
-  
+
     const monthlyData = schedule.reduce((acc, entry) => {
       const monthKey = `${entry.paymentDate.getFullYear()}-${entry.paymentDate.toLocaleString('default', { month: 'short' })}`;
       if (!acc[monthKey]) {
@@ -75,7 +109,7 @@ export class AmortizationTableComponent {
       acc[monthKey].endBalance = entry.remainingBalance;
       return acc;
     }, {} as { [key: string]: AggregatedEntry });
-  
+
     return Object.values(monthlyData);
   });
 
