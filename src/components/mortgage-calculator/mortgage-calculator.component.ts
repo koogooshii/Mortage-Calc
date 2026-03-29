@@ -9,6 +9,7 @@ import { VisualAnalysisComponent } from '../visual-analysis/visual-analysis.comp
 import { PdfExportService, ChartImages } from '../../services/pdf-export.service';
 import { AiGoalSeekerComponent } from '../ai-goal-seeker/ai-goal-seeker.component';
 import { ScenarioState } from '../../models/scenario.model';
+import { ScenarioPersistenceService } from '../../services/scenario-persistence.service';
 import { GeminiAiService } from '../../services/gemini-ai.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -26,6 +27,7 @@ export class MortgageCalculatorComponent {
   private mortgageService = inject(MortgageService);
   private pdfExportService = inject(PdfExportService);
   private geminiAiService = inject(GeminiAiService);
+  private persistenceService = inject(ScenarioPersistenceService);
 
   // --- Inputs / Outputs for State Management ---
   state = input.required<ScenarioState>();
@@ -258,6 +260,65 @@ export class MortgageCalculatorComponent {
   updateMaxAnnualPrepayment(event: Event) { this.maxAnnualPrepaymentPercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraPaymentFrequency(event: Event) {
     this.extraPaymentFrequency.set((event.target as HTMLSelectElement).value as PaymentFrequency);
+  }
+
+  // Tooltip display state
+  activeTooltip = signal<string | null>(null);
+
+  // Tooltip messages
+  private tooltipMessages: { [key: string]: string } = {
+    loanAmount: 'The total amount you are borrowing. This is typically the purchase price minus your down payment.',
+    interestRate: 'The annual interest rate charged by your lender. For variable rates, this may change over time.',
+    amortization: 'The total time to pay off your mortgage completely. Common terms are 15, 20, or 25 years.',
+    frequency: 'How often you make payments. Accelerated bi-weekly means you make 26 payments per year (half your monthly payment every 2 weeks), paying off faster.',
+    pmi: 'Private Mortgage Insurance. Required if your down payment is less than 20% of the home value.',
+    propertyTax: 'Annual property taxes assessed by your local government, typically paid monthly into an escrow account.',
+  };
+
+  showTooltip(key: string) {
+    if (this.activeTooltip() === key) {
+      this.activeTooltip.set(null);
+    } else {
+      this.activeTooltip.set(key);
+    }
+  }
+
+  getTooltipMessage(key: string): string {
+    return this.tooltipMessages[key] || '';
+  }
+
+  // Input validation
+  getValidationError(field: string): string | null {
+    const value = this.mortgageForm.get(field)?.value;
+    switch (field) {
+      case 'loanAmount':
+        if (value === 0 || value === null || value === undefined) return null; // Allow zero initially
+        if (value < 0) return 'Loan amount cannot be negative';
+        if (value > 100000000) return 'Loan amount seems too high';
+        return null;
+      case 'interestRate':
+        if (value === 0 || value === null || value === undefined) return null;
+        if (value < 0) return 'Interest rate cannot be negative';
+        if (value > 30) return 'Interest rate seems too high';
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  // Reset to defaults
+  resetToDefaults() {
+    const defaults = this.persistenceService.getDefaultScenario();
+    this.mortgageForm.patchValue(defaults.formValues, { emitEvent: true });
+    this.extraMonthlyPayment.set(defaults.extraMonthlyPayment);
+    this.extraPaymentFrequency.set(defaults.extraPaymentFrequency);
+    this.annualPaymentIncreasePercentage.set(defaults.annualPaymentIncreasePercentage);
+    this.maxAnnualPrepaymentPercentage.set(defaults.maxAnnualPrepaymentPercentage);
+    this.recurringPayments.set([]);
+    this.oneTimePayments.set([]);
+    this.deferments.set([]);
+    this.adHocPayments.set({});
+    this.rateChanges.set([]);
   }
 
   // Max annual prepayment helpers
