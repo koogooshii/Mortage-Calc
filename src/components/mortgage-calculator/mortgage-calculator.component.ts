@@ -326,24 +326,14 @@ export class MortgageCalculatorComponent {
     const form = this.state().formValues;
     const startDate = form.startDate ? new Date(form.startDate) : new Date();
     const now = new Date();
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
 
-    // Calculate which mortgage year we're in (1-indexed)
-    let mortgageYear = currentYear - startYear;
-    if (currentMonth >= startMonth) {
-      mortgageYear++;
-    }
+    // Calculate the difference in days from start date to now
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const daysDiff = Math.floor((now.getTime() - startDate.getTime()) / msPerDay);
+
+    // Mortgage year is 1-indexed, each year is 52 weeks (364 days)
+    const mortgageYear = Math.floor(daysDiff / 364) + 1;
     return Math.max(1, mortgageYear);
-  }
-
-  // Get calendar year for a given mortgage year
-  getCalendarYearForMortgageYear(mortgageYear: number): number {
-    const form = this.state().formValues;
-    const startDate = form.startDate ? new Date(form.startDate) : new Date();
-    return startDate.getFullYear() + mortgageYear - 1;
   }
 
   // Get the max annual prepayment amount (percentage of original loan)
@@ -363,19 +353,25 @@ export class MortgageCalculatorComponent {
     // Get extra payments by year from the schedule
     const extraPaymentsByYear = summary.extraPaymentsByYear || {};
 
-    // Calculate total used in the current mortgage year
-    let usedThisYear = 0;
+    // Calculate the mortgage year date range (364 days = 52 weeks)
     const startDate = this.state().formValues.startDate ? new Date(this.state().formValues.startDate) : new Date();
-    const currentMortgageYearStart = new Date(startDate);
-    currentMortgageYearStart.setFullYear(startDate.getFullYear() + currentMortgageYear - 1);
-    const currentMortgageYearEnd = new Date(currentMortgageYearStart);
-    currentMortgageYearEnd.setFullYear(currentMortgageYearStart.getFullYear() + 1);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const msPerYear = 364 * msPerDay;
 
-    // Sum all extra payments that fall within the current mortgage year
+    // Current mortgage year starts at startDate + (currentYear - 1) * 364 days
+    const currentMortgageYearStart = new Date(startDate.getTime() + (currentMortgageYear - 1) * msPerYear);
+    const currentMortgageYearEnd = new Date(currentMortgageYearStart.getTime() + msPerYear);
+
+    // Sum all extra payments that fall within the current mortgage year date range
+    let usedThisYear = 0;
     Object.entries(extraPaymentsByYear).forEach(([yearStr, amount]) => {
       const year = parseInt(yearStr, 10);
-      // Check if this calendar year falls within our mortgage year range
-      if (year >= currentMortgageYearStart.getFullYear() && year < currentMortgageYearEnd.getFullYear()) {
+      // Create a date for January 1 of this year
+      const yearStart = new Date(year, 0, 1);
+      const yearEnd = new Date(year + 1, 0, 1);
+
+      // Check if this calendar year overlaps with our mortgage year range
+      if (yearStart < currentMortgageYearEnd && yearEnd > currentMortgageYearStart) {
         usedThisYear += amount;
       }
     });
