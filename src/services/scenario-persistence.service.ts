@@ -34,6 +34,7 @@ export class ScenarioPersistenceService {
       extraMonthlyPayment: 0,
       extraPaymentFrequency: 'monthly' as PaymentFrequency,
       annualPaymentIncreasePercentage: 0,
+      maxAnnualPrepaymentPercentage: 20,
       recurringPayments: [],
       oneTimePayments: [],
       deferments: [],

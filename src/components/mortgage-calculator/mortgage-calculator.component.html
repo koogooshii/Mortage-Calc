@@ -147,11 +147,36 @@
                         </div>
                     </div>
 
+                    <!-- Maximum Annual Prepayment Limit -->
+                    <div class="border-t border-slate-200 pt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-medium text-slate-600">Max Annual Prepayment (% of
+                                original)</label>
+                            <span class="text-xs text-violet-600 font-medium">{{ maxAnnualPrepaymentPercentage()
+                                }}%</span>
+                        </div>
+                        <input type="range" min="0" max="25" step="1" [value]="maxAnnualPrepaymentPercentage()"
+                            (input)="updateMaxAnnualPrepayment($event)"
+                            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600">
+                        <div class="flex justify-between text-xs text-slate-400 mt-1">
+                            <span>0%</span>
+                            <span>25%</span>
+                        </div>
+                        @if (yearlyPrepaymentRemaining() !== null) {
+                        <div class="mt-2 p-2 bg-violet-50 border border-violet-200 rounded-lg">
+                            <p class="text-xs text-violet-700">
+                                <strong>Remaining prepayment allowance:</strong>
+                                {{ getCurrentYearPrepaymentRemaining() | currency }} for {{ getCurrentYear() }}
+                            </p>
+                        </div>
+                        }
+                    </div>
+
                     <!-- Auto-apply annual increase based on selected years -->
                     <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
                         <p class="text-xs text-amber-700">
-                            <strong>Note:</strong> Annual payment increases will only apply to years selected below.
-                            Default is 20% increase per year.
+                            <strong>Note:</strong> Many lenders allow 20-25% annual prepayment.
+                            The remaining allowance shows how much you can still prepay this year.
                         </p>
                     </div>
                 </div>

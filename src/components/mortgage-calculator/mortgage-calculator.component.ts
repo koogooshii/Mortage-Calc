@@ -73,6 +73,7 @@ export class MortgageCalculatorComponent {
   // Signals for dynamic extra payments and deferments
   extraMonthlyPayment = signal<number>(0);
   annualPaymentIncreasePercentage = signal<number>(0);
+  maxAnnualPrepaymentPercentage = signal<number>(20); // Default 20% of original loan
   recurringPayments = signal<RecurringPayment[]>([]);
   oneTimePayments = signal<OneTimePayment[]>([]);
   deferments = signal<string[]>([]);
@@ -136,6 +137,7 @@ export class MortgageCalculatorComponent {
       this.extraMonthlyPayment.set(s.extraMonthlyPayment);
       this.extraPaymentFrequency.set(s.extraPaymentFrequency);
       this.annualPaymentIncreasePercentage.set(s.annualPaymentIncreasePercentage);
+      this.maxAnnualPrepaymentPercentage.set(s.maxAnnualPrepaymentPercentage ?? 20);
       this.recurringPayments.set(s.recurringPayments);
       this.oneTimePayments.set(s.oneTimePayments);
       this.deferments.set(s.deferments);
@@ -201,6 +203,7 @@ export class MortgageCalculatorComponent {
       extraMonthlyPayment: this.extraMonthlyPayment(),
       extraPaymentFrequency: this.extraPaymentFrequency(),
       annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
+      maxAnnualPrepaymentPercentage: this.maxAnnualPrepaymentPercentage(),
       recurringPayments: this.recurringPayments(),
       oneTimePayments: this.oneTimePayments(),
       deferments: this.deferments(),
@@ -252,9 +255,41 @@ export class MortgageCalculatorComponent {
   updateExtraMonthlyPayment(event: Event) { this.extraMonthlyPayment.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraMonthlyPaymentDirect(amount: number) { this.extraMonthlyPayment.set(amount); }
   updateAnnualPaymentIncrease(event: Event) { this.annualPaymentIncreasePercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
+  updateMaxAnnualPrepayment(event: Event) { this.maxAnnualPrepaymentPercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraPaymentFrequency(event: Event) {
     this.extraPaymentFrequency.set((event.target as HTMLSelectElement).value as PaymentFrequency);
   }
+
+  // Max annual prepayment helpers
+  getCurrentYear(): number {
+    const form = this.state().formValues;
+    const startDate = form.startDate ? new Date(form.startDate) : new Date();
+    return startDate.getFullYear();
+  }
+
+  getMaxAnnualPrepaymentAmount(): number {
+    const form = this.state().formValues;
+    const loanAmount = form.loanAmount ?? 0;
+    return loanAmount * (this.maxAnnualPrepaymentPercentage() / 100);
+  }
+
+  getCurrentYearPrepaymentRemaining(): number {
+    const summary = this.summary();
+    if (!summary) return this.getMaxAnnualPrepaymentAmount();
+    const currentYear = this.getCurrentYear();
+    const extraPaymentsByYear = summary.extraPaymentsByYear || {};
+    const usedThisYear = extraPaymentsByYear[currentYear] || 0;
+    const maxAllowed = this.getMaxAnnualPrepaymentAmount();
+    return Math.max(0, maxAllowed - usedThisYear);
+  }
+
+  yearlyPrepaymentRemaining = computed(() => {
+    // This is used to show/hide the remaining allowance display
+    const summary = this.summary();
+    if (!summary) return null;
+    return this.getCurrentYearPrepaymentRemaining();
+  });
+
   toggleInsuranceTaxExpanded() {
     this.insuranceTaxCollapsed.update(v => !v);
   }

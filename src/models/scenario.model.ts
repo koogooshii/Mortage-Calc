@@ -18,6 +18,7 @@ export interface ScenarioState {
   extraMonthlyPayment: number;
   extraPaymentFrequency: PaymentFrequency;
   annualPaymentIncreasePercentage: number;
+  maxAnnualPrepaymentPercentage: number;
   recurringPayments: RecurringPayment[];
   oneTimePayments: OneTimePayment[];
   deferments: string[];
