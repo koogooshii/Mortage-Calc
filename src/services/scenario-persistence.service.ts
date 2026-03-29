@@ -32,6 +32,7 @@ export class ScenarioPersistenceService {
         monthlyPMI: 0,
       },
       extraMonthlyPayment: 0,
+      extraPaymentFrequency: 'monthly' as PaymentFrequency,
       annualPaymentIncreasePercentage: 0,
       recurringPayments: [],
       oneTimePayments: [],

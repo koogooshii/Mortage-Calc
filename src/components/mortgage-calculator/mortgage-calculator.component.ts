@@ -79,6 +79,12 @@ export class MortgageCalculatorComponent {
   adHocPayments = signal<{ [paymentNumber: number]: number }>({});
   rateChanges = signal<RateChange[]>([]);
 
+  // Extra payment frequency (separate from main payment frequency)
+  extraPaymentFrequency = signal<PaymentFrequency>('monthly');
+
+  // Insurance & Tax collapsible state (default collapsed)
+  insuranceTaxCollapsed = signal<boolean>(true);
+
   // Year selection for prepayments
   selectedYears = signal<number[]>([]);
 
@@ -128,6 +134,7 @@ export class MortgageCalculatorComponent {
       const s = this.state();
       this.mortgageForm.patchValue(s.formValues, { emitEvent: false });
       this.extraMonthlyPayment.set(s.extraMonthlyPayment);
+      this.extraPaymentFrequency.set(s.extraPaymentFrequency);
       this.annualPaymentIncreasePercentage.set(s.annualPaymentIncreasePercentage);
       this.recurringPayments.set(s.recurringPayments);
       this.oneTimePayments.set(s.oneTimePayments);
@@ -140,7 +147,7 @@ export class MortgageCalculatorComponent {
     this.mortgageForm.valueChanges.pipe(debounceTime(300), distinctUntilChanged(this.isEqual)).subscribe(formValues => this.emitStateChange());
 
     effect(() => {
-      this.extraMonthlyPayment(); this.annualPaymentIncreasePercentage();
+      this.extraMonthlyPayment(); this.extraPaymentFrequency(); this.annualPaymentIncreasePercentage();
       this.recurringPayments(); this.oneTimePayments(); this.deferments();
       this.adHocPayments(); this.rateChanges();
       this.emitStateChange();
@@ -152,7 +159,9 @@ export class MortgageCalculatorComponent {
       const form = state.formValues;
       const allRecurringPayments = [...state.recurringPayments];
       if (state.extraMonthlyPayment > 0) {
-        allRecurringPayments.push({ amount: state.extraMonthlyPayment, frequency: 'monthly' });
+        // Use the extra payment frequency, converting to RecurringPaymentFrequency
+        const extraFreq = state.extraPaymentFrequency as RecurringPaymentFrequency;
+        allRecurringPayments.push({ amount: state.extraMonthlyPayment, frequency: extraFreq });
       }
 
       const params = {
@@ -190,6 +199,7 @@ export class MortgageCalculatorComponent {
     const currentState: ScenarioState = {
       formValues: this.mortgageForm.getRawValue(),
       extraMonthlyPayment: this.extraMonthlyPayment(),
+      extraPaymentFrequency: this.extraPaymentFrequency(),
       annualPaymentIncreasePercentage: this.annualPaymentIncreasePercentage(),
       recurringPayments: this.recurringPayments(),
       oneTimePayments: this.oneTimePayments(),
@@ -242,6 +252,12 @@ export class MortgageCalculatorComponent {
   updateExtraMonthlyPayment(event: Event) { this.extraMonthlyPayment.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
   updateExtraMonthlyPaymentDirect(amount: number) { this.extraMonthlyPayment.set(amount); }
   updateAnnualPaymentIncrease(event: Event) { this.annualPaymentIncreasePercentage.set(parseFloat((event.target as HTMLInputElement).value) || 0); }
+  updateExtraPaymentFrequency(event: Event) {
+    this.extraPaymentFrequency.set((event.target as HTMLSelectElement).value as PaymentFrequency);
+  }
+  toggleInsuranceTaxExpanded() {
+    this.insuranceTaxCollapsed.update(v => !v);
+  }
 
   // Year selection helpers for prepayments
   getYearRange(): number[] {

@@ -16,6 +16,7 @@ export interface ScenarioState {
     monthlyPMI: number;
   };
   extraMonthlyPayment: number;
+  extraPaymentFrequency: PaymentFrequency;
   annualPaymentIncreasePercentage: number;
   recurringPayments: RecurringPayment[];
   oneTimePayments: OneTimePayment[];
