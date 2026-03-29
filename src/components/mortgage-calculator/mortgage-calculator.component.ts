@@ -321,25 +321,65 @@ export class MortgageCalculatorComponent {
     this.rateChanges.set([]);
   }
 
-  // Max annual prepayment helpers
-  getCurrentYear(): number {
+  // Max annual prepayment helpers - returns mortgage year (1, 2, 3, etc. starting from loan start)
+  getMortgageYear(): number {
     const form = this.state().formValues;
     const startDate = form.startDate ? new Date(form.startDate) : new Date();
-    return startDate.getFullYear();
+    const now = new Date();
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    // Calculate which mortgage year we're in (1-indexed)
+    let mortgageYear = currentYear - startYear;
+    if (currentMonth >= startMonth) {
+      mortgageYear++;
+    }
+    return Math.max(1, mortgageYear);
   }
 
+  // Get calendar year for a given mortgage year
+  getCalendarYearForMortgageYear(mortgageYear: number): number {
+    const form = this.state().formValues;
+    const startDate = form.startDate ? new Date(form.startDate) : new Date();
+    return startDate.getFullYear() + mortgageYear - 1;
+  }
+
+  // Get the max annual prepayment amount (percentage of original loan)
   getMaxAnnualPrepaymentAmount(): number {
     const form = this.state().formValues;
     const loanAmount = form.loanAmount ?? 0;
     return loanAmount * (this.maxAnnualPrepaymentPercentage() / 100);
   }
 
+  // Calculate remaining prepayment allowance for the current mortgage year
   getCurrentYearPrepaymentRemaining(): number {
     const summary = this.summary();
+    const currentMortgageYear = this.getMortgageYear();
+
     if (!summary) return this.getMaxAnnualPrepaymentAmount();
-    const currentYear = this.getCurrentYear();
+
+    // Get extra payments by year from the schedule
     const extraPaymentsByYear = summary.extraPaymentsByYear || {};
-    const usedThisYear = extraPaymentsByYear[currentYear] || 0;
+
+    // Calculate total used in the current mortgage year
+    let usedThisYear = 0;
+    const startDate = this.state().formValues.startDate ? new Date(this.state().formValues.startDate) : new Date();
+    const currentMortgageYearStart = new Date(startDate);
+    currentMortgageYearStart.setFullYear(startDate.getFullYear() + currentMortgageYear - 1);
+    const currentMortgageYearEnd = new Date(currentMortgageYearStart);
+    currentMortgageYearEnd.setFullYear(currentMortgageYearStart.getFullYear() + 1);
+
+    // Sum all extra payments that fall within the current mortgage year
+    Object.entries(extraPaymentsByYear).forEach(([yearStr, amount]) => {
+      const year = parseInt(yearStr, 10);
+      // Check if this calendar year falls within our mortgage year range
+      if (year >= currentMortgageYearStart.getFullYear() && year < currentMortgageYearEnd.getFullYear()) {
+        usedThisYear += amount;
+      }
+    });
+
     const maxAllowed = this.getMaxAnnualPrepaymentAmount();
     return Math.max(0, maxAllowed - usedThisYear);
   }
